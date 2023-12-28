@@ -1,0 +1,4 @@
+cron:
+- description: 'datastore backup'
+  url: /datastore-backup
+  schedule: every day 00:00

@@ -1,0 +1,31 @@
+runtime: nodejs18
+instance_class: F1
+handlers:
+  - url: /status
+    redirect_http_response_code: 301
+    script: auto
+    secure: always
+  - url: /datastore-backup
+    redirect_http_response_code: 301
+    script: auto
+    secure: always
+  - url: /static/(.*\..+)$
+    redirect_http_response_code: 301
+    secure: always
+    static_files: web/build/static/\1
+    upload: web/build/static/(.*\..+)$
+    expiration: 365d
+  - url: /(.*\..+)$
+    redirect_http_response_code: 301
+    secure: always
+    static_files: web/build/\1
+    upload: web/build/(.*\..+)$
+  - url: /.*
+    redirect_http_response_code: 301
+    secure: always
+    static_files: web/build/index.html
+    upload: web/build/index.html
+    expiration: 0
+automatic_scaling:
+  min_instances: 0
+  max_instances: 1
