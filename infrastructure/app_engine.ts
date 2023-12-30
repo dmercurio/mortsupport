@@ -54,7 +54,7 @@ export const datastoreBackupBucketName = datastoreBackupBucket.name;
 
 // Cloud Tasks Queue
 const taskQueueDelay = new time.Sleep('task-queue-delay', {
-  createDuration: "60s", // work around a Google issue
+  createDuration: '60s', // work around a Google issue
 }, {dependsOn: [...googleApis, appEngineApp]});
 new gcp.cloudtasks.Queue('cloud-tasks-queue', {
   location: config.require('location'),

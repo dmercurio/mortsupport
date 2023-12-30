@@ -1,6 +1,6 @@
 import * as gcp from '@pulumi/gcp';
 import * as pulumi from '@pulumi/pulumi';
-import {appEngineApp, projectId} from "./index";
+import {appEngineApp, projectId} from './index';
 
 const gcpConfig = new pulumi.Config('gcp');
 
@@ -9,7 +9,7 @@ new gcp.projects.Service('iamcredentials.googleapis.com', {
   service: 'iamcredentials.googleapis.com',
 });
 
-new gcp.projects.IAMMember('service-account-creator', {
+export const serviceAccountCreator = new gcp.projects.IAMMember('service-account-creator', {
   project: projectId,
   member: `serviceAccount:${gcpConfig.require('impersonateServiceAccount')}`,
   role: 'roles/iam.serviceAccountCreator',

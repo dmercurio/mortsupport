@@ -1,6 +1,7 @@
 config:
   gcp:impersonateServiceAccount: infrastructure@supersymmetry-app-controller.iam.gserviceaccount.com
 
-  mortsupport:folderId: 1014944734650 # MortSupport
   mortsupport:billingAccount: 012A4B-E9311C-C6283B
+  mortsupport:folderId: 1014944734650 # MortSupport
+  mortsupport:githubRepository: dmercurio/mortsupport
   mortsupport:location: us-west1
