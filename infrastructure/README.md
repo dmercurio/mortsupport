@@ -1,5 +1,15 @@
 # Infrastructure
 
+## Manual Configuration - Google Cloud Console
+
+### Create Billing Account
+* [Billing](https://console.cloud.google.com/billing) > Create Account > ...
+* add Billing Account ID to `Pulumi.staging.yaml` and `Pulumi.prod.yaml`
+
+### Create Folder
+* [Cloud Resource Manager](https://console.cloud.google.com/cloud-resourceManager) > Create Folder > ...
+* add Folder ID to `Pulumi.staging.yaml` and `Pulumi.prod.yaml`
+
 ## Setup
 
 ### Install Pulumi
