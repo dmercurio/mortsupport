@@ -1,9 +1,11 @@
+import * as fs from 'fs';
 import * as gcp from '@pulumi/gcp';
 import * as pulumi from '@pulumi/pulumi';
 import * as time from '@pulumiverse/time';
 import {projectId} from './index';
 
 const config = new pulumi.Config();
+const stack = pulumi.getStack();
 
 /* App Engine */
 
@@ -63,7 +65,7 @@ new gcp.cloudtasks.Queue('cloud-tasks-queue', {
 }, {dependsOn: taskQueueDelay});
 
 // Status Check
-new gcp.monitoring.UptimeCheckConfig('status-check', {
+const statusCheck = new gcp.monitoring.UptimeCheckConfig('status-check', {
   contentMatchers: [{
     content: 'OK',
   }],
@@ -85,3 +87,13 @@ new gcp.monitoring.UptimeCheckConfig('status-check', {
   selectedRegions: ['USA'],
   timeout: '30s',
 }, {dependsOn: googleApis});
+pulumi.all([statusCheck.contentMatchers, statusCheck.monitoredResource, statusCheck.httpCheck]).apply(([
+  contentMatchers, monitoredResource, httpCheck
+]) => {
+  fs.mkdirSync(`outputs/${stack}`, {recursive: true});
+  fs.writeFileSync(`outputs/${stack}/statusCheck.json`, JSON.stringify({
+    content: contentMatchers?.at(0)?.content,
+    host: monitoredResource?.labels.host,
+    path: httpCheck?.path,
+  }));
+});

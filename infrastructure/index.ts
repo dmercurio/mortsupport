@@ -25,7 +25,7 @@ if (gcpConfig.get('project')) {
 }
 projectId.apply((id) => {
   fs.mkdirSync(`outputs/${stack}`, {recursive: true});
-  fs.writeFileSync(`outputs/${stack}/project_id.txt`, id);
+  fs.writeFileSync(`outputs/${stack}/project.json`, JSON.stringify({id: id}));
 });
 
 import './app_engine';
