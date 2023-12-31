@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "gcp-build": "npm ci --prefix=server --omit dev",
+    "start": "npm start --prefix server"
+  },
+  "devDependencies": {
+    "cmd-ts": "^0.13.0",
+    "ts-node": "^10.9.2"
+  }
+}
