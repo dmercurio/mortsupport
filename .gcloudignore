@@ -1,0 +1,10 @@
+.gcloudignore
+.git
+.gitignore
+README.md
+gha-creds-*.json
+node_modules/
+
+# ignore everything in infrastructure/ except for the outputs subdirectories
+infrastructure/*
+!infrastructure/outputs/**
