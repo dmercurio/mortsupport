@@ -3,7 +3,7 @@ import * as gcp from '@pulumi/gcp';
 import * as pulumi from '@pulumi/pulumi';
 import * as time from '@pulumiverse/time';
 import {appEngineApp} from './app_engine';
-import {projectId} from './index';
+import {projectId} from './project';
 import {serviceAccountCreator} from './iam';
 
 const config = new pulumi.Config();
