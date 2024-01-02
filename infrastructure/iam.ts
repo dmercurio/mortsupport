@@ -1,5 +1,6 @@
 import * as gcp from '@pulumi/gcp';
 import * as pulumi from '@pulumi/pulumi';
+import * as time from '@pulumiverse/time';
 import {appEngineApp} from './app_engine';
 import {projectId} from './project';
 
@@ -17,6 +18,9 @@ export const serviceAccountCreator = new gcp.projects.IAMMember('service-account
 });
 
 // give the necessary permissions to the App Engine default service account
+const appEngineAppDelay = new time.Sleep('app-engine-app-delay', {
+  createDuration: '60s', // give extra time for default service account creation
+}, {dependsOn: appEngineApp});
 [
   'roles/appengine.serviceAgent',
   'roles/datastore.user',
@@ -31,7 +35,7 @@ export const serviceAccountCreator = new gcp.projects.IAMMember('service-account
     project: projectId,
     member: projectId.apply((id) => `serviceAccount:${id}@appspot.gserviceaccount.com`),
     role: role,
-  }, {dependsOn: [appEngineApp]});
+  }, {dependsOn: [appEngineAppDelay, serviceAccountCreator]});
 });
 
 // remove the editor role from everyone
