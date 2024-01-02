@@ -1,0 +1,77 @@
+name: deploy
+
+on:
+  push:
+    branches: [ '*' ]
+  pull_request:
+    branches: [ '*' ]
+
+  workflow_dispatch:
+    inputs:
+      env:
+        type: choice
+        default: 'staging'
+        options: ['prod', 'staging']
+
+concurrency: deploy-${{ inputs.env || 'staging' }}
+
+jobs:
+  deploy:
+    name: deploy
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    runs-on: ubuntu-latest
+    env:
+      infrastructure_outputs: infrastructure/outputs/${{ inputs.env || 'staging' }}
+    steps:
+    - name: checkout
+      uses: actions/checkout@v3
+    - name: nvm
+      id: nvm
+      run: echo "NODE_VERSION=$(cat .nvmrc)" >> $GITHUB_OUTPUT
+    - name: setup node
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ steps.nvm.outputs.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: |
+          package-lock.json
+          server/package-lock.json
+    - name: npm clean-install
+      run: npm clean-install --prefix server
+    - name: npm run build
+      run: npm run build --prefix server
+
+  # deploy
+    - if: github.ref == 'refs/heads/main'
+      name: gcloud auth vars
+      id: auth_vars
+      run: |
+        echo "WORKLOAD_IDENTITY_PROVIDER=$(cat ${{ env.infrastructure_outputs }}/github.json | jq -r '.poolProvider')" >> $GITHUB_OUTPUT
+        echo "SERVICE_ACCOUNT=$(cat ${{ env.infrastructure_outputs }}/github.json | jq -r '.serviceAccount')" >> $GITHUB_OUTPUT
+    - if: github.ref == 'refs/heads/main'
+      name: gcloud auth
+      uses: google-github-actions/auth@v2
+      with:
+        workload_identity_provider: ${{ steps.auth_vars.outputs.WORKLOAD_IDENTITY_PROVIDER }}
+        service_account: ${{ steps.auth_vars.outputs.SERVICE_ACCOUNT }}
+    - if: github.ref == 'refs/heads/main'
+      name: gcloud versions
+      run: gcloud app versions list --filter="traffic_split=0" --sort-by="~last_deployed_time" --format "value(version.id)" | tail -n +100 | xargs -r gcloud app versions delete
+    - if: github.ref == 'refs/heads/main'
+      name: gcloud app deploy
+      uses: google-github-actions/deploy-appengine@v2
+      with:
+        deliverables: 'app.yaml index.yaml'
+    - if: github.ref == 'refs/heads/main'
+      name: status check
+      uses: nick-fields/retry@v2
+      with:
+        max_attempts: 3
+        retry_wait_seconds: 10
+        timeout_seconds: 30
+        command: |
+          endpoint=`cat ${{ env.infrastructure_outputs }}/status_check.json | jq -r '"\(.host)\(.path)"'`
+          content=`cat ${{ env.infrastructure_outputs }}/status_check.json | jq -r '.content'`
+          [ `curl -s $endpoint` == $content ]
