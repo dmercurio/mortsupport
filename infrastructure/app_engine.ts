@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as gcp from '@pulumi/gcp';
 import * as pulumi from '@pulumi/pulumi';
 import * as time from '@pulumiverse/time';
-import {projectId} from './index';
+import {projectId} from './project';
 
 const config = new pulumi.Config();
 const stack = pulumi.getStack();

@@ -1,6 +1,7 @@
 import * as gcp from '@pulumi/gcp';
 import * as pulumi from '@pulumi/pulumi';
-import {appEngineApp, projectId} from './index';
+import {appEngineApp} from './app_engine';
+import {projectId} from './project';
 
 const gcpConfig = new pulumi.Config('gcp');
 
