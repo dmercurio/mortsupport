@@ -3,5 +3,5 @@ config:
 
   mortsupport:billingAccount: 012A4B-E9311C-C6283B
   mortsupport:folderId: 1014944734650 # MortSupport
-  mortsupport:githubRepository: dmercurio/mortsupport
+  mortsupport:githubRepository: mort-support/mort-support-mvp
   mortsupport:location: us-west1
