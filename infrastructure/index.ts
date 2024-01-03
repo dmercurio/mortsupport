@@ -3,3 +3,4 @@ export * from './app_engine';
 import './iam';
 import './github';
 import './project';
+export * from './project';

@@ -1,1 +1,1 @@
-{"poolProvider":"projects/1045286052651/locations/global/workloadIdentityPools/github-pool/providers/github-pool-provider","serviceAccount":"github@mortsupport-staging-1497.iam.gserviceaccount.com"}
+{"poolProvider":"projects/1045286052651/locations/global/workloadIdentityPools/github-pool/providers/github-pool-provider","serviceAccount":"github@mortsupport-staging-1497.iam.gserviceaccount.com","identityUser":"principalSet://iam.googleapis.com/projects/1045286052651/locations/global/workloadIdentityPools/github-pool/attribute.repository/mort-support/mort-support-mvp"}

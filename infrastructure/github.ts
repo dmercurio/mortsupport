@@ -70,7 +70,7 @@ const workloadIdentityPoolProvider = new gcp.iam.WorkloadIdentityPoolProvider('w
 });
 
 // Workload Identity User Role
-new gcp.serviceaccount.IAMMember('workload-identity-user', {
+const workloadIdentityUser = new gcp.serviceaccount.IAMMember('workload-identity-user', {
   role: 'roles/iam.workloadIdentityUser',
   member: workloadIdentityPool.name.apply(
     (name) => `principalSet://iam.googleapis.com/${name}/attribute.repository/${config.require('githubRepository')}`
@@ -78,10 +78,19 @@ new gcp.serviceaccount.IAMMember('workload-identity-user', {
   serviceAccountId: githubServiceAccount.id,
 })
 
-pulumi.all([workloadIdentityPoolProvider.name, githubServiceAccount.email]).apply(([poolProvider, serviceAccount]) => {
+pulumi.all([
+  workloadIdentityPoolProvider.name,
+  githubServiceAccount.email,
+  workloadIdentityUser.member,
+]).apply(([
+  poolProvider,
+  serviceAccount,
+  identityUser,
+]) => {
   fs.mkdirSync(`outputs/${stack}`, {recursive: true});
   fs.writeFileSync(`outputs/${stack}/github.json`, JSON.stringify({
     poolProvider: poolProvider,
     serviceAccount: serviceAccount,
+    identityUser: identityUser,
   }));
 });
