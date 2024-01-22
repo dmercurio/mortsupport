@@ -5,10 +5,16 @@ import helmet from 'helmet';
 
 const router = Router();
 
+// status check endpoint
 const statusCheck = JSON.parse(fs.readFileSync('../infrastructure/outputs/staging/statusCheck.json', 'utf8'));
 router.get(statusCheck.path, async(request, response) => {
   response.send(statusCheck.content);
 });
+
+// simple ui for customer service rep to generate a link for a user
+
+// simple ui for a user to upload a photo
+
 
 const app = express();
 app.use(compression());
