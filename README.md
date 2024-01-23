@@ -13,15 +13,16 @@ node --version # e.g. v18.16.0
 
 Copy `cdnvm()` into `~/.bash_profile` from https://github.com/nvm-sh/nvm#automatically-call-nvm-use
 
-
 ## Scripts
 
 ### Local Development
+
 ```bash
 ./local.ts
 ```
 
 ### Deployments
+
 ```bash
 ./deploy.ts # deploys staging
 ./deploy.ts --env prod # deploys prod

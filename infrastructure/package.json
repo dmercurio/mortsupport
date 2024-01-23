@@ -1,13 +1,13 @@
 {
-    "name": "mortsupport",
-    "main": "index.ts",
-    "devDependencies": {
-        "@types/node": "^18"
-    },
-    "dependencies": {
-        "@pulumi/gcp": "^7.0.0",
-        "@pulumi/pulumi": "^3.0.0",
-        "@pulumi/random": "^4.15.0",
-        "@pulumiverse/time": "^0.0.16"
-    }
+  "name": "mortsupport",
+  "main": "index.ts",
+  "devDependencies": {
+    "@types/node": "^18"
+  },
+  "dependencies": {
+    "@pulumi/gcp": "^7.0.0",
+    "@pulumi/pulumi": "^3.0.0",
+    "@pulumi/random": "^4.15.0",
+    "@pulumiverse/time": "^0.0.16"
+  }
 }
