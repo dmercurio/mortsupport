@@ -7,7 +7,10 @@ const local = command({
   args: {},
   handler: () => {
     process.stdout.write(`${String.fromCharCode(27)}]0;./local.ts${String.fromCharCode(7)}`); // rename terminal tab
-    execSync('npm run local --prefix server', {stdio: 'inherit'});
+    execSync(
+      'tmux new-session "BROWSER=none npm start --prefix web" \\; split-window -h "npm run local --prefix server" \\; setw -g mouse on',
+      {stdio: 'inherit'},
+    );
   },
 });
 run(local, process.argv.slice(2));
