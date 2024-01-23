@@ -1,0 +1,17 @@
+.fullCenterOuter {
+  display: table;
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+.fullCenterInner {
+  display: table-cell;
+  text-align: center;
+  vertical-align: middle;
+}
+.stack {
+  display: flex;
+  flex-direction: column;
+}
