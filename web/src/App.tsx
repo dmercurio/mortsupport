@@ -1,5 +1,6 @@
-import {BrowserRouter, Route, Routes} from 'react-router-dom';
+import './App.css';
 import UploadDocument from './UploadDocument';
+import {BrowserRouter, Route, Routes} from 'react-router-dom';
 
 // button to generate a link
 // maybe in the future - send a text message
@@ -11,7 +12,7 @@ function App() {
     <div>
       <BrowserRouter>
         <Routes>
-          <Route key="upload-photo" path="user/upload-document" element={UploadDocument()} />
+          <Route key="upload-document" path="/:documentId" element={<UploadDocument />} />
         </Routes>
       </BrowserRouter>
     </div>
