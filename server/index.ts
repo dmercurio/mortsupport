@@ -3,7 +3,8 @@ import compression from 'compression';
 import express, {Router} from 'express';
 import helmet from 'helmet';
 import time from './lib/time';
-import {storage} from './lib/environment';
+import {env, storage} from './lib/environment';
+import {router as localRouter} from './local';
 
 const router = Router();
 
@@ -15,18 +16,41 @@ router.get(statusCheck.path, async (request, response) => {
 
 const BUCKET = `${process.env.GOOGLE_CLOUD_PROJECT}-bucket`;
 
+if (env === 'local') {
+  router.use('/local/storage', localRouter);
+}
+
 router.get('/api/upload-url/:documentId', async (request, response) => {
   const document = {id: request.params.documentId}; // TODO this is just a stub - load the object from the documentId
 
-  await storage
-    .bucket(BUCKET)
-    .file(`${document.id}.jpg`) // TODO prefix with clientId
-    .getSignedUrl({
-      version: 'v4',
-      action: 'read',
-      expires: Date.now() + time.milliseconds({hours: 1}),
-    });
+  const url = (
+    await storage
+      .bucket(BUCKET)
+      .file(`${document.id}.jpg`) // TODO prefix with clientId
+      .getSignedUrl({
+        action: 'write',
+        contentType: 'image/jpeg',
+        expires: Date.now() + time.milliseconds({hours: 1}),
+        version: 'v4',
+      })
+  )[0];
+  if (env === 'local') { // TODO fix CORS
+    response.set('Access-Control-Allow-Origin', 'http://localhost:3000');
+    response.set('Access-Control-Allow-Methods', '*');
+    response.set('Access-Control-Allow-Headers', '*');
+  }
+  response.send({url: url});
 });
+
+router.post('/api/upload-complete/:documentId', async (request, response) => {
+  if (env === 'local') { // TODO fix CORS
+    response.set('Access-Control-Allow-Origin', 'http://localhost:3000');
+    response.set('Access-Control-Allow-Methods', '*');
+    response.set('Access-Control-Allow-Headers', '*');
+  }
+  response.send("");
+});
+
 
 const app = express();
 app.use(compression());

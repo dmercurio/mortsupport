@@ -6,13 +6,18 @@ import {useParams} from 'react-router-dom';
 
 const API_PATH = process.env.REACT_APP_API_PATH;
 
+type UploadUrl = {
+  url: string;
+}
+
 export default function UploadDocument() {
   const {documentId} = useParams();
-  const {data: signedUrl, error} = useFetch<string>(`${API_PATH}/upload-url/${documentId}`);
+  const {data: signedUrl/*, error*/} = useFetch<UploadUrl>(`${API_PATH}/upload-url/${documentId}`);
 
   const onSubmit = async(e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const uploadResult = await fetch(signedUrl!, {method: 'PUT', body: '', headers: {'Content-Type': 'image/jpeg'}});
+    const uploadResult = await fetch(signedUrl!.url, {method: 'PUT', body: 'asdf', headers: {'Content-Type': 'image/jpeg'}});
+
     if (uploadResult.ok) {
       await fetch(`${API_PATH}/upload-complete/${documentId}`, {method: 'POST'});
     }
