@@ -77,4 +77,4 @@ jobs:
           command: |
             endpoint=`cat ${{ env.infrastructure_outputs }}/statusCheck.json | jq -r '"\(.host)\(.path)"'`
             content=`cat ${{ env.infrastructure_outputs }}/statusCheck.json | jq -r '.content'`
-            [ `curl -s $endpoint` == $content ]
+            [ `curl -s https://$endpoint` == $content ]
