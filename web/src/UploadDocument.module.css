@@ -8,7 +8,6 @@ h2 {
 }
 .tapToShare {
   align-items: center;
-  background-color: #f3f6fc;
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -18,10 +17,13 @@ h2 {
 }
 .thumbnail,
 .tapToShare {
-  border: 1px solid #dddddd;
   height: 160px;
   object-fit: cover;
   width: 160px;
+}
+.tapToShareEmpty {
+  background-color: #f3f6fc;
+  border: 1px solid #dddddd;
 }
 .tapToShare input[type='file'] {
   display: none;
@@ -36,6 +38,7 @@ input[type='button'] {
   border-radius: 12px;
   border: 1px solid #4477d0;
   color: white;
+  cursor: pointer;
   font-size: 18px;
   font-weight: 400;
   height: 44px;
