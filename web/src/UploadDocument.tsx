@@ -1,4 +1,5 @@
 import camera from './camera.png';
+import checkmark from './checkmark.png';
 import classnames from 'classnames';
 import css from './UploadDocument.module.css';
 import {Buffer} from 'buffer';
@@ -12,24 +13,42 @@ const THUMBNAIL_CAPTURE_HEIGHT = 320;
 
 type UploadUrl = {
   url: string;
+  complete: boolean;
 };
+
+function Complete() {
+  return (
+    <FullCenter>
+      <h2>Upload Complete</h2>
+      <img alt="success" src={checkmark} height={256} width={256} />
+    </FullCenter>
+  );
+}
 
 export default function UploadDocument() {
   const {documentId} = useParams();
   const [photoData, setPhotoData] = useState<ArrayBuffer>();
+  const [complete, setComplete] = useState<boolean>(false);
   const [thumbnailBase64, setThumbnailBase64] = useState<string>('');
-  const {data: signedUrl /*, error*/} = useFetch<UploadUrl>(`${API_PATH}/upload-url/${documentId}`);
+  const {data/*, error*/} = useFetch<UploadUrl>(`${API_PATH}/upload-url/${documentId}`);
+
+  if (complete || data?.complete) {
+    return <Complete />;
+  }
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const uploadResult = await fetch(signedUrl!.url, {
+    const uploadResult = await fetch(data!.url, {
       method: 'PUT',
       body: photoData,
       headers: {'Content-Type': 'image/jpeg'},
     });
 
     if (uploadResult.ok) {
-      await fetch(`${API_PATH}/upload-complete/${documentId}`, {method: 'POST'});
+      const completeResult = await fetch(`${API_PATH}/upload-complete/${documentId}`, {method: 'POST'});
+      if (completeResult.ok) {
+        setComplete(true);
+      }
     }
   };
 

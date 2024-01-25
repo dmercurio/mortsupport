@@ -23,6 +23,10 @@ if (env === 'local') {
   app.use(cors({origin: 'http://localhost:3000'}));
 }
 
+router.post('/api/create-document', async (request, response) => {
+  response.send("");
+});
+
 router.get('/api/upload-url/:documentId', async (request, response) => {
   const document = {id: request.params.documentId}; // TODO this is just a stub - load the object from the documentId
 
