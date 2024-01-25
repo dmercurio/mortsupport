@@ -5,6 +5,7 @@
     "start": "node build/index.js"
   },
   "dependencies": {
+    "@google-cloud/datastore": "^8.4.0",
     "@google-cloud/storage": "^7.7.0",
     "base-x": "^4.0.0",
     "compression": "^1.7.4",
