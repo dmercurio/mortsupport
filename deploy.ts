@@ -16,7 +16,7 @@ const deploy = command({
   handler: ({env, version}) => {
     const project = JSON.parse(readFileSync(`infrastructure/outputs/${env}/project.json`, 'utf-8')).id;
     const versionClause = version ? `--version=${version} --no-promote` : '';
-    execSync(`npm run build --prefix server`, {
+    execSync(`npx parallelshell "npm run build --prefix web" "npm run build --prefix server"`, {
       stdio: 'inherit',
       env: {...process.env, NODE_ENV: 'production'},
     });
