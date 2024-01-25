@@ -75,6 +75,6 @@ jobs:
           retry_wait_seconds: 10
           timeout_seconds: 30
           command: |
-            endpoint=`cat ${{ env.infrastructure_outputs }}/status_check.json | jq -r '"\(.host)\(.path)"'`
-            content=`cat ${{ env.infrastructure_outputs }}/status_check.json | jq -r '.content'`
+            endpoint=`cat ${{ env.infrastructure_outputs }}/statusCheck.json | jq -r '"\(.host)\(.path)"'`
+            content=`cat ${{ env.infrastructure_outputs }}/statusCheck.json | jq -r '.content'`
             [ `curl -s $endpoint` == $content ]
