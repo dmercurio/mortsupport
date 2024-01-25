@@ -5,7 +5,9 @@ import helmet from 'helmet';
 import time from './lib/time';
 import {env, storage} from './lib/environment';
 import {router as localRouter} from './local';
+import cors from 'cors';
 
+const app = express();
 const router = Router();
 
 // status check endpoint
@@ -18,6 +20,7 @@ const BUCKET = `${process.env.GOOGLE_CLOUD_PROJECT}-bucket`;
 
 if (env === 'local') {
   router.use('/local/storage', localRouter);
+  app.use(cors({origin: 'http://localhost:3000'}))
 }
 
 router.get('/api/upload-url/:documentId', async (request, response) => {
@@ -34,25 +37,14 @@ router.get('/api/upload-url/:documentId', async (request, response) => {
         version: 'v4',
       })
   )[0];
-  if (env === 'local') { // TODO fix CORS
-    response.set('Access-Control-Allow-Origin', 'http://localhost:3000');
-    response.set('Access-Control-Allow-Methods', '*');
-    response.set('Access-Control-Allow-Headers', '*');
-  }
   response.send({url: url});
 });
 
 router.post('/api/upload-complete/:documentId', async (request, response) => {
-  if (env === 'local') { // TODO fix CORS
-    response.set('Access-Control-Allow-Origin', 'http://localhost:3000');
-    response.set('Access-Control-Allow-Methods', '*');
-    response.set('Access-Control-Allow-Headers', '*');
-  }
   response.send("");
 });
 
 
-const app = express();
 app.use(compression());
 app.use(helmet());
 app.use('/', router);
