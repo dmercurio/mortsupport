@@ -36,12 +36,14 @@ export const appEngineHostname = appEngineApp.defaultHostname;
 // App Engine Bucket
 const appEngineBucket = new gcp.storage.Bucket('app-engine-bucket', {
   // view cors using: gcloud storage buckets describe gs://BUCKET --format="default(cors_config)"
-  cors: [{
-    maxAgeSeconds: 3600,
-    methods: ['PUT'],
-    origins: [appEngineHostname.apply((hostname) => `https://${hostname}`)],
-    responseHeaders: ['Content-Type'],
-  }],
+  cors: [
+    {
+      maxAgeSeconds: 3600,
+      methods: ['PUT'],
+      origins: [appEngineHostname.apply((hostname) => `https://${hostname}`)],
+      responseHeaders: ['Content-Type'],
+    },
+  ],
   location: config.require('location'),
   name: projectId.apply((id) => `${id}-bucket`),
   project: projectId,

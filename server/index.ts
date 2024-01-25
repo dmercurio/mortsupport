@@ -20,7 +20,7 @@ const BUCKET = `${process.env.GOOGLE_CLOUD_PROJECT}-bucket`;
 
 if (env === 'local') {
   router.use('/local/storage', localRouter);
-  app.use(cors({origin: 'http://localhost:3000'}))
+  app.use(cors({origin: 'http://localhost:3000'}));
 }
 
 router.get('/api/upload-url/:documentId', async (request, response) => {
@@ -41,9 +41,8 @@ router.get('/api/upload-url/:documentId', async (request, response) => {
 });
 
 router.post('/api/upload-complete/:documentId', async (request, response) => {
-  response.send("");
+  response.send('');
 });
-
 
 app.use(compression());
 app.use(helmet());
