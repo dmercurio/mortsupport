@@ -9,6 +9,10 @@ handlers:
     redirect_http_response_code: 301
     script: auto
     secure: always
+  - url: /api/.*
+    redirect_http_response_code: 301
+    script: auto
+    secure: always
   - url: /static/(.*\..+)$
     redirect_http_response_code: 301
     secure: always
