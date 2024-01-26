@@ -29,6 +29,11 @@ router.all('/api/create-document', async (request, response) => {
   response.send(document.id);
 });
 
+router.all('/api/document-status/:documentId', async (request, response) => {
+  const document = await DocumentStore.load({}, request.params.documentId);
+  response.send({id: document.id, verified: Boolean(document.verified)});
+});
+
 router.get('/api/upload-url/:documentId', async (request, response) => {
   const document = (await DocumentStore.query({}, {id: request.params.documentId})).at(0);
   if (!document) {
