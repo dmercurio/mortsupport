@@ -69,12 +69,8 @@ jobs:
           deliverables: 'app.yaml index.yaml'
       - if: github.ref == 'refs/heads/main'
         name: status check
-        uses: nick-fields/retry@v2
-        with:
-          max_attempts: 3
-          retry_wait_seconds: 10
-          timeout_seconds: 30
-          command: |
-            endpoint=`cat ${{ env.infrastructure_outputs }}/statusCheck.json | jq -r '"\(.host)\(.path)"'`
-            content=`cat ${{ env.infrastructure_outputs }}/statusCheck.json | jq -r '.content'`
-            [ `curl -s https://$endpoint` == $content ]
+        run: |
+          endpoint=`cat ${{ env.infrastructure_outputs }}/statusCheck.json | jq -r '"\(.host)\(.path)"'`
+          content=`cat ${{ env.infrastructure_outputs }}/statusCheck.json | jq -r '.content'`
+          for i in 1 2 3; do [ `curl -s https://$endpoint` == $content ] && exit 0 || sleep 10; done
+          exit 1
