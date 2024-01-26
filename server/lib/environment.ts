@@ -1,4 +1,6 @@
+import LocalDatastore from './local/datastore';
 import LocalStorage from './local/storage';
+import {Datastore} from '@google-cloud/datastore';
 import {Storage} from '@google-cloud/storage';
 import {existsSync, readFileSync} from 'fs';
 
@@ -17,9 +19,11 @@ if (projectId) {
   }
 }
 
-export let storage: Storage;
+export let storage: Storage, datastore: Datastore;
 if (process.env.NODE_ENV === 'production') {
+  datastore = new Datastore({projectId: projectId});
   storage = new Storage();
 } else {
+  datastore = new LocalDatastore(':memory:') as any as Datastore;
   storage = new LocalStorage('.local/storage/') as any as Storage;
 }
