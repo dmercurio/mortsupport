@@ -1,4 +1,3 @@
-import LocalDatastore from './local/datastore';
 import LocalStorage from './local/storage';
 import {Datastore} from '@google-cloud/datastore';
 import {Storage} from '@google-cloud/storage';
@@ -24,6 +23,7 @@ if (process.env.NODE_ENV === 'production') {
   datastore = new Datastore({projectId: projectId});
   storage = new Storage();
 } else {
-  datastore = new LocalDatastore(':memory:') as any as Datastore;
+  const LocalDatastore = require('./local/datastore').default;
+  datastore = new LocalDatastore('.local/datastore.sqlite3') as any as Datastore;
   storage = new LocalStorage('.local/storage/') as any as Storage;
 }

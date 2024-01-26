@@ -1,11 +1,12 @@
 import * as fs from 'fs';
 import compression from 'compression';
+import cors from 'cors';
 import express, {Router} from 'express';
 import helmet from 'helmet';
 import time from './lib/time';
 import {env, storage} from './lib/environment';
 import {router as localRouter} from './local';
-import cors from 'cors';
+import {Document, DocumentStore} from './DocumentStore';
 
 const app = express();
 const router = Router();
@@ -23,12 +24,17 @@ if (env === 'local') {
   app.use(cors({origin: 'http://localhost:3000'}));
 }
 
-router.post('/api/create-document', async (request, response) => {
-  response.send("");
+router.all('/api/create-document', async (request, response) => {
+  const document = await DocumentStore.create({});
+  response.send(document.id);
 });
 
 router.get('/api/upload-url/:documentId', async (request, response) => {
-  const document = {id: request.params.documentId}; // TODO this is just a stub - load the object from the documentId
+  const document = (await DocumentStore.query({}, {id: request.params.documentId})).at(0);
+  if (!document) {
+    response.sendStatus(404);
+    return;
+  }
 
   const url = (
     await storage
@@ -41,11 +47,12 @@ router.get('/api/upload-url/:documentId', async (request, response) => {
         version: 'v4',
       })
   )[0];
-  response.send({url: url});
+  response.send({url: url, complete: Boolean(document.complete)});
 });
 
 router.post('/api/upload-complete/:documentId', async (request, response) => {
-  response.send('');
+  await DocumentStore.update({}, request.params.documentId, {complete: 1});
+  response.send();
 });
 
 app.use(compression());
