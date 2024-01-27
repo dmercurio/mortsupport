@@ -22,9 +22,9 @@ brew install pulumi/tap/pulumi
 
 ### Prerequisites
 
-- Populate `Pulumi.staging.yaml`, `Pulumi.prod.yaml`, etc with values for the appropriate variables
-  ** e.g. the `folderId` and `billingAccount` from Google Cloud Console, desired `location`, Github repository
-  ** optionally provide an existing GCP project using `gcp:project`
+* Populate `Pulumi.staging.yaml`, `Pulumi.prod.yaml`, etc with values for the appropriate variables
+  * e.g. the `folderId` and `billingAccount` from Google Cloud Console, desired `location`, Github repository
+  * optionally provide an existing GCP project using `gcp:project`
 
 ### Stacks
 
