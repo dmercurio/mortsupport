@@ -30,7 +30,7 @@ export default function UploadDocument() {
   const [photoData, setPhotoData] = useState<ArrayBuffer>();
   const [complete, setComplete] = useState<boolean>(false);
   const [thumbnailBase64, setThumbnailBase64] = useState<string>('');
-  const {data/*, error*/} = useFetch<UploadUrl>(`${API_PATH}/upload-url/${documentId}`);
+  const {data /*, error*/} = useFetch<UploadUrl>(`${API_PATH}/upload-url/${documentId}`);
 
   if (complete || data?.complete) {
     return <Complete />;
@@ -97,7 +97,7 @@ export default function UploadDocument() {
           <Stack className={css.shareBox}>
             <label className={classnames(css.tapToShare, {[css.tapToShareEmpty]: !thumbnailBase64})}>
               {thumbnailBase64 ? (
-                <img alt="" src={thumbnailBase64} style={{maxWidth: 240, maxHeight: 240}} />
+                <img alt="" src={thumbnailBase64} style={{maxWidth: 240, maxHeight: 160, border: '1px solid #ddd', padding: '2px'}} />
               ) : (
                 <>
                   <div>Tap to Share</div>

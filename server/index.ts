@@ -31,7 +31,7 @@ router.all('/api/create-document', async (request, response) => {
 
 router.all('/api/document-status/:documentId', async (request, response) => {
   const document = await DocumentStore.load({}, request.params.documentId);
-  response.send({id: document.id, verified: Boolean(document.verified)});
+  response.send({id: document.id, status: document.status});
 });
 
 router.get('/api/upload-url/:documentId', async (request, response) => {
@@ -52,11 +52,18 @@ router.get('/api/upload-url/:documentId', async (request, response) => {
         version: 'v4',
       })
   )[0];
-  response.send({url: url, complete: Boolean(document.complete)});
+  response.send({url: url, complete: document.status !== 'WAITING'});
 });
 
 router.post('/api/upload-complete/:documentId', async (request, response) => {
-  await DocumentStore.update({}, request.params.documentId, {complete: 1});
+  await DocumentStore.update({}, request.params.documentId, {status: 'VERIFYING'});
+
+  // set status to success after 5 second delay to simulate the verification happening
+  (async () =>
+    setTimeout(() => {
+      DocumentStore.update({}, request.params.documentId, {status: 'SUCCESS'});
+    }, 5000))();
+
   response.send();
 });
 

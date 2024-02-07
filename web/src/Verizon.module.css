@@ -1,0 +1,82 @@
+.banner {
+  background-color: black;
+  color: white;
+  flex-direction: row;
+  display: flex;
+  align-items: center;
+}
+
+button {
+  background-color: #4c84e7;
+  border-radius: 12px;
+  border: 1px solid #4477d0;
+  color: white;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 400;
+  height: 50px;
+  text-transform: uppercase;
+  width: 340px;
+  margin: 20px;
+}
+
+.pageSection {
+  text-align: center;
+  margin: 50px;
+  padding: 20px;
+  width: 550px;
+  border-radius: 8px;
+  border: 1px solid #aaa;
+}
+
+.statusIcon {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  border: 0.5px solid #fff;
+  display: block;
+  margin: auto;
+}
+
+.complete {
+  background-color: #18a518;
+}
+
+.incomplete {
+  background-color: #e6e6e6;
+  width: 25px;
+  height: 25px;
+}
+
+.step {
+  width: 180px;
+  height: 80px;
+  text-align: center;
+}
+
+.progressBar {
+  display: flex;
+  margin: 30px auto;
+}
+
+.barContainer {
+  display: flex;
+  gap: 50px;
+  position: relative;
+  top: -101px;
+  left: 115px;
+}
+
+.barContainer > * {
+  width: 130px;
+  height: 10px;
+  border-radius: 10px;
+}
+
+.emptyBar {
+  background-color: #e6e6e6;
+}
+
+.halfBar {
+  background: linear-gradient(to right, #18a518 50%, #e6e6e6 50%);
+}
