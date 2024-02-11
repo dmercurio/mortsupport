@@ -5,3 +5,4 @@ config:
   mortsupport:folderId: 1014944734650 # MortSupport
   mortsupport:githubRepository: mort-support/mort-support-mvp
   mortsupport:location: us-west1
+  mortsupport:documentAILocation: us
