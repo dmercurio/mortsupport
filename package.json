@@ -9,5 +9,8 @@
     "parallelshell": "3.0.1",
     "prettier": "^3.2.4",
     "ts-node": "^10.9.2"
+  },
+  "dependencies": {
+    "@google-cloud/documentai": "^8.2.0"
   }
 }
