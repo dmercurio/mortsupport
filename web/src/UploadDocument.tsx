@@ -106,7 +106,7 @@ export default function UploadDocument() {
               )}
               <input
                 type="file"
-                accept="image/jpeg"
+                accept="application/pdf,image/gif,image/tiff,image/jpeg,image/png,image/bmp,image/webp"
                 onChange={async (e) => {
                   const newPhotoData = await readPhotoData(e);
                   setPhotoData(newPhotoData);
