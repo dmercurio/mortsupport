@@ -75,7 +75,7 @@ const taskQueueDelay = new time.Sleep(
   },
   {dependsOn: [...googleApis, appEngineApp]},
 );
-new gcp.cloudtasks.Queue(
+const taskQueue = new gcp.cloudtasks.Queue(
   'cloud-tasks-queue',
   {
     location: config.require('location'),
@@ -84,6 +84,13 @@ new gcp.cloudtasks.Queue(
   },
   {dependsOn: taskQueueDelay},
 );
+pulumi.all([taskQueue.name, taskQueue.location]).apply(([name, location]) => {
+  fs.mkdirSync(`outputs/${stack}`, {recursive: true});
+  fs.writeFileSync(
+    `outputs/${stack}/taskQueue.json`,
+    JSON.stringify({name: name, location: location}),
+  );
+});
 
 // Status Check
 const statusCheck = new gcp.monitoring.UptimeCheckConfig(
