@@ -6,6 +6,7 @@
   },
   "dependencies": {
     "@google-cloud/datastore": "^8.4.0",
+    "@google-cloud/documentai": "^8.2.0",
     "@google-cloud/storage": "^7.7.0",
     "@google-cloud/tasks": "^5.1.0",
     "base-x": "^4.0.0",
