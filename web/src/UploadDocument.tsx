@@ -97,7 +97,11 @@ export default function UploadDocument() {
           <Stack className={css.shareBox}>
             <label className={classnames(css.tapToShare, {[css.tapToShareEmpty]: !thumbnailBase64})}>
               {thumbnailBase64 ? (
-                <img alt="" src={thumbnailBase64} style={{maxWidth: 240, maxHeight: 160, border: '1px solid #ddd', padding: '2px'}} />
+                <img
+                  alt=""
+                  src={thumbnailBase64}
+                  style={{maxWidth: 240, maxHeight: 160, border: '1px solid #ddd', padding: '2px'}}
+                />
               ) : (
                 <>
                   <div>Tap to Share</div>

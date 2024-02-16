@@ -75,7 +75,9 @@ export default function Verizon() {
                     className={classNames(css.statusIcon, index <= currentStep ? css.complete : css.incomplete)}
                   />
                   {index === 0 ? (
-                    <a target="_blank" href={uploadLink} rel="noreferrer"><div>{stepContent}</div></a>
+                    <a target="_blank" href={uploadLink} rel="noreferrer">
+                      <div>{stepContent}</div>
+                    </a>
                   ) : (
                     <div>{stepContent}</div>
                   )}

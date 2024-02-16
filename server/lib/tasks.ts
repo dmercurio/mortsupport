@@ -6,7 +6,9 @@ type Content = {
   [key: string]: any;
 };
 
-const {name: queueName, location: queueLocation} = JSON.parse(fs.readFileSync(`../../infrastructure/outputs/${env}/taskQueue.json`, 'utf8'));
+const {name: queueName, location: queueLocation} = JSON.parse(
+  fs.readFileSync(`../../infrastructure/outputs/${env}/taskQueue.json`, 'utf8'),
+);
 
 export default class Tasks {
   static async enqueue(endpoint: string, content: Content, scheduleTime: number = Date.now()) {

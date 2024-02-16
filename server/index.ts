@@ -7,6 +7,7 @@ import time from './lib/time';
 import {env, storage} from './lib/environment';
 import {router as localRouter} from './local';
 import {Document, DocumentStore} from './DocumentStore';
+import Tasks, {taskHandlerMiddleware} from './lib/tasks';
 
 const app = express();
 const router = Router();
@@ -58,12 +59,16 @@ router.get('/api/upload-url/:documentId', async (request, response) => {
 router.post('/api/upload-complete/:documentId', async (request, response) => {
   await DocumentStore.update({}, request.params.documentId, {status: 'VERIFYING'});
 
-  // set status to success after 5 second delay to simulate the verification happening
-  (async () =>
-    setTimeout(() => {
-      DocumentStore.update({}, request.params.documentId, {status: 'SUCCESS'});
-    }, 5000))();
+  await Tasks.enqueue('/tasks/verify-document', {documentId: request.params.documentId});
 
+  response.send();
+});
+
+export const taskHandlers: Router = Router();
+router.use('/tasks', taskHandlerMiddleware, taskHandlers);
+
+taskHandlers.get('/tasks/verify-document', async (request, response) => {
+  const document = await DocumentStore.load({}, request.body.documentId);
   response.send();
 });
 

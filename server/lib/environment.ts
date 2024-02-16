@@ -2,6 +2,7 @@ import LocalStorage from './local/storage';
 import LocalTasks from './local/tasks';
 import {CloudTasksClient} from '@google-cloud/tasks';
 import {Datastore} from '@google-cloud/datastore';
+import {DocumentProcessorServiceClient} from '@google-cloud/documentai';
 import {Storage} from '@google-cloud/storage';
 import {existsSync, readFileSync} from 'fs';
 
@@ -20,11 +21,12 @@ if (projectId) {
   }
 }
 
-export let storage: Storage, datastore: Datastore, tasks: CloudTasksClient;
+export let storage: Storage, datastore: Datastore, tasks: CloudTasksClient, documentAI: DocumentProcessorServiceClient;
 if (process.env.NODE_ENV === 'production') {
   datastore = new Datastore({projectId: projectId});
   storage = new Storage();
   tasks = new CloudTasksClient();
+  documentAI = new DocumentProcessorServiceClient();
 } else {
   const LocalDatastore = require('./local/datastore').default;
   datastore = new LocalDatastore('.local/datastore.sqlite3') as any as Datastore;

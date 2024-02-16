@@ -86,10 +86,7 @@ const taskQueue = new gcp.cloudtasks.Queue(
 );
 pulumi.all([taskQueue.name, taskQueue.location]).apply(([name, location]) => {
   fs.mkdirSync(`outputs/${stack}`, {recursive: true});
-  fs.writeFileSync(
-    `outputs/${stack}/taskQueue.json`,
-    JSON.stringify({name: name, location: location}),
-  );
+  fs.writeFileSync(`outputs/${stack}/taskQueue.json`, JSON.stringify({name: name, location: location}));
 });
 
 // Status Check
