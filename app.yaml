@@ -13,6 +13,10 @@ handlers:
     redirect_http_response_code: 301
     script: auto
     secure: always
+  - url: /tasks/.*
+    redirect_http_response_code: 301
+    script: auto
+    secure: always
   - url: /static/(.*\..+)$
     redirect_http_response_code: 301
     secure: always

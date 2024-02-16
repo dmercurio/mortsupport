@@ -1,4 +1,6 @@
 import LocalStorage from './local/storage';
+import LocalTasks from './local/tasks';
+import {CloudTasksClient} from '@google-cloud/tasks';
 import {Datastore} from '@google-cloud/datastore';
 import {Storage} from '@google-cloud/storage';
 import {existsSync, readFileSync} from 'fs';
@@ -18,12 +20,14 @@ if (projectId) {
   }
 }
 
-export let storage: Storage, datastore: Datastore;
+export let storage: Storage, datastore: Datastore, tasks: CloudTasksClient;
 if (process.env.NODE_ENV === 'production') {
   datastore = new Datastore({projectId: projectId});
   storage = new Storage();
+  tasks = new CloudTasksClient();
 } else {
   const LocalDatastore = require('./local/datastore').default;
   datastore = new LocalDatastore('.local/datastore.sqlite3') as any as Datastore;
   storage = new LocalStorage('.local/storage/') as any as Storage;
+  tasks = new LocalTasks() as any as CloudTasksClient;
 }
