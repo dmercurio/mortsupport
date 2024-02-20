@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import LocalStorage from './local/storage';
 import LocalTasks from './local/tasks';
 import {CloudTasksClient} from '@google-cloud/tasks';
@@ -21,15 +22,33 @@ if (projectId) {
   }
 }
 
-export let storage: Storage, datastore: Datastore, tasks: CloudTasksClient, documentAI: DocumentProcessorServiceClient;
+export let datastore: Datastore,
+  documentAI: DocumentProcessorServiceClient,
+  documentAIFormProcessor: string,
+  queuePath: string,
+  statusCheck: {path: string; content: string},
+  storage: Storage,
+  tasks: CloudTasksClient;
+
 if (process.env.NODE_ENV === 'production') {
   datastore = new Datastore({projectId: projectId});
+  documentAI = new DocumentProcessorServiceClient();
+  documentAIFormProcessor = JSON.parse(
+    fs.readFileSync(`../infrastructure/outputs/${env}/documentAI.json`, 'utf8'),
+  ).formProcessor;
   storage = new Storage();
   tasks = new CloudTasksClient();
-  documentAI = new DocumentProcessorServiceClient();
+  const {name: queueName, location: queueLocation} = JSON.parse(
+    fs.readFileSync(`../infrastructure/outputs/${env}/taskQueue.json`, 'utf8'),
+  );
+  queuePath = tasks.queuePath(projectId!, queueLocation, queueName);
+  statusCheck = JSON.parse(fs.readFileSync(`../infrastructure/outputs/${env}/statusCheck.json`, 'utf8'));
 } else {
   const LocalDatastore = require('./local/datastore').default;
   datastore = new LocalDatastore('.local/datastore.sqlite3') as any as Datastore;
   storage = new LocalStorage('.local/storage/') as any as Storage;
   tasks = new LocalTasks() as any as CloudTasksClient;
+  queuePath = '';
+  documentAIFormProcessor = '';
+  statusCheck = {path: '/status', content: 'OK'};
 }

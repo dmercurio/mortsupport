@@ -1,19 +1,12 @@
-import * as fs from 'fs';
 import express, {NextFunction, Request, Response} from 'express';
-import {env, tasks} from './environment';
+import {tasks, queuePath} from './environment';
 
 type Content = {
   [key: string]: any;
 };
 
-const {name: queueName, location: queueLocation} = JSON.parse(
-  fs.readFileSync(`../infrastructure/outputs/${env}/taskQueue.json`, 'utf8'),
-);
-
 export default class Tasks {
   static async enqueue(endpoint: string, content: Content, scheduleTime: number = Date.now()) {
-    const project = process.env.GOOGLE_CLOUD_PROJECT || '';
-    const parent = tasks.queuePath(project, queueLocation, queueName);
     const task = {
       appEngineHttpRequest: {
         body: Buffer.from(JSON.stringify(content)).toString('base64'),
@@ -23,7 +16,7 @@ export default class Tasks {
       },
       scheduleTime: {seconds: scheduleTime / 1000},
     };
-    const [response] = await tasks.createTask({parent: parent, task: task});
+    const [response] = await tasks.createTask({parent: queuePath, task: task});
     return response.name;
   }
 }

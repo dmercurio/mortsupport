@@ -6,7 +6,7 @@ import express, {Router} from 'express';
 import helmet from 'helmet';
 import time from './lib/time';
 import {DocumentStatus, DocumentStore} from './DocumentStore';
-import {documentAI, env, storage} from './lib/environment';
+import {documentAI, documentAIFormProcessor, env, statusCheck, storage} from './lib/environment';
 import {router as localRouter} from './local';
 
 const app = express();
@@ -15,7 +15,6 @@ const router = Router();
 const DATE_FORMAT: Intl.DateTimeFormatOptions = {month: '2-digit', day: '2-digit', year: 'numeric'}; // MM/DD/YYYY
 
 // status check endpoint
-const statusCheck = JSON.parse(fs.readFileSync(`../infrastructure/outputs/${env}/statusCheck.json`, 'utf8'));
 router.get(statusCheck.path, async (request, response) => {
   response.send(statusCheck.content);
 });
@@ -74,17 +73,13 @@ router.post('/api/upload-complete/:documentId', async (request, response) => {
 export const taskHandlers: Router = Router();
 router.use('/tasks', taskHandlerMiddleware, taskHandlers);
 
-const formProcessor = JSON.parse(
-  fs.readFileSync(`../infrastructure/outputs/${env}/documentAI.json`, 'utf8'),
-).formProcessor;
-
 taskHandlers.post('/verify-document', async (request, response) => {
   const documentObj = await DocumentStore.load({}, request.body.documentId);
   const [imageData] = await storage.bucket(BUCKET).file(`${documentObj.id}.jpg`).download();
 
   const document = (
     await documentAI.processDocument({
-      name: formProcessor,
+      name: documentAIFormProcessor,
       rawDocument: {
         content: imageData,
         mimeType: 'application/pdf',
