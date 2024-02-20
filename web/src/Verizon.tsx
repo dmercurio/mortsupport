@@ -44,7 +44,15 @@ export default function Verizon() {
   }, [uploadLink]);
 
   async function generateUploadLink() {
-    const uploadIdRequest = await fetch(`${API_PATH}/create-document`);
+    const uploadIdRequest = await fetch(`${API_PATH}/create-document`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        name: 'a',
+        birthdate: 'b',
+        ssnLast4: 'c',
+      }),
+    });
 
     if (uploadIdRequest.ok) {
       const uploadId = await uploadIdRequest.text();
@@ -68,7 +76,7 @@ export default function Verizon() {
           <div>
             <div className={css.progressBar}>
               {STEPS_CONTENT.map((stepContent, index) => (
-                <div className={css.step}>
+                <div key={index} className={css.step}>
                   <img
                     alt=""
                     src={index === currentStep ? checked : circle}
