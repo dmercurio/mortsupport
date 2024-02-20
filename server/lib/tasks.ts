@@ -7,7 +7,7 @@ type Content = {
 };
 
 const {name: queueName, location: queueLocation} = JSON.parse(
-  fs.readFileSync(`../../infrastructure/outputs/${env}/taskQueue.json`, 'utf8'),
+  fs.readFileSync(`../infrastructure/outputs/${env}/taskQueue.json`, 'utf8'),
 );
 
 export default class Tasks {
@@ -33,6 +33,7 @@ export const taskHandlerMiddleware = [
   (request: Request, response: Response, next: NextFunction) => {
     if (!request.headers['x-appengine-queuename'] || !request.headers['x-appengine-taskname']) {
       response.status(404).send();
+      return;
     }
     console.log(`Running task ${request.headers['x-appengine-queuename']}/${request.headers['x-appengine-taskname']}`);
     request.body = JSON.parse(request.body);
