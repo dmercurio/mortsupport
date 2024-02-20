@@ -13,7 +13,7 @@ const app = express();
 const router = Router();
 
 // status check endpoint
-const statusCheck = JSON.parse(fs.readFileSync('../infrastructure/outputs/staging/statusCheck.json', 'utf8'));
+const statusCheck = JSON.parse(fs.readFileSync(`../infrastructure/outputs/${env}/statusCheck.json`, 'utf8'));
 router.get(statusCheck.path, async (request, response) => {
   response.send(statusCheck.content);
 });
