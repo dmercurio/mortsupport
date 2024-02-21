@@ -6,7 +6,7 @@ import express, {Router} from 'express';
 import helmet from 'helmet';
 import time from './lib/time';
 import {DocumentStatus, DocumentStore} from './DocumentStore';
-import {documentAI, documentAIFormProcessor, env, statusCheck, storage} from './lib/environment';
+import {bucket, documentAI, documentAIFormProcessor, env, statusCheck, storage} from './lib/environment';
 import {router as localRouter} from './local';
 
 const app = express();
@@ -18,8 +18,6 @@ const DATE_FORMAT: Intl.DateTimeFormatOptions = {month: '2-digit', day: '2-digit
 router.get(statusCheck.path, async (request, response) => {
   response.send(statusCheck.content);
 });
-
-const BUCKET = `${process.env.GOOGLE_CLOUD_PROJECT}-bucket`;
 
 if (env === 'local') {
   router.use('/local/storage', localRouter);
@@ -50,7 +48,7 @@ router.get('/api/upload-url/:documentId', async (request, response) => {
 
   const url = (
     await storage
-      .bucket(BUCKET)
+      .bucket(bucket)
       .file(`${document.id}.jpg`) // TODO prefix with clientId
       .getSignedUrl({
         action: 'write',
@@ -75,7 +73,7 @@ router.use('/tasks', taskHandlerMiddleware, taskHandlers);
 
 taskHandlers.post('/verify-document', async (request, response) => {
   const documentObj = await DocumentStore.load({}, request.body.documentId);
-  const [imageData] = await storage.bucket(BUCKET).file(`${documentObj.id}.jpg`).download();
+  const [imageData] = await storage.bucket(bucket).file(`${documentObj.id}.jpg`).download();
 
   const document = (
     await documentAI.processDocument({

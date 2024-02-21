@@ -50,6 +50,10 @@ const appEngineBucket = new gcp.storage.Bucket('app-engine-bucket', {
   publicAccessPrevention: 'enforced',
 });
 export const appEngineBucketName = appEngineBucket.name;
+appEngineBucketName.apply((name) => {
+  fs.mkdirSync(`outputs/${stack}`, {recursive: true});
+  fs.writeFileSync(`outputs/${stack}/storage.json`, JSON.stringify({bucket: name}));
+});
 
 // Datastore Backups Bucket
 const datastoreBackupBucket = new gcp.storage.Bucket('datastore-backup-bucket', {

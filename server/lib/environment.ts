@@ -22,7 +22,8 @@ if (projectId) {
   }
 }
 
-export let datastore: Datastore,
+export let bucket: string,
+  datastore: Datastore,
   documentAI: DocumentProcessorServiceClient,
   documentAIFormProcessor: string,
   queuePath: string,
@@ -31,6 +32,7 @@ export let datastore: Datastore,
   tasks: CloudTasksClient;
 
 if (process.env.NODE_ENV === 'production') {
+  bucket = JSON.parse(fs.readFileSync(`../infrastructure/outputs/${env}/storage.json`, 'utf8')).bucket;
   datastore = new Datastore({projectId: projectId});
   documentAI = new DocumentProcessorServiceClient();
   documentAIFormProcessor = JSON.parse(
@@ -44,6 +46,7 @@ if (process.env.NODE_ENV === 'production') {
   queuePath = tasks.queuePath(projectId!, queueLocation, queueName);
   statusCheck = JSON.parse(fs.readFileSync(`../infrastructure/outputs/${env}/statusCheck.json`, 'utf8'));
 } else {
+  bucket = 'bucket';
   const LocalDatastore = require('./local/datastore').default;
   datastore = new LocalDatastore('.local/datastore.sqlite3') as any as Datastore;
   storage = new LocalStorage('.local/storage/') as any as Storage;
