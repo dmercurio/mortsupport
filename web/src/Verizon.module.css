@@ -80,3 +80,17 @@ button {
 .halfBar {
   background: linear-gradient(to right, #18a518 50%, #e6e6e6 50%);
 }
+
+.customerList li {
+  border-radius: 4px;
+  border: 1px solid #aaa;
+  cursor: pointer;
+  list-style-type: none;
+  margin: 8px;
+  padding: 12px;
+  width: 400px;
+}
+
+.customerList li i {
+  color: #aaa;
+}

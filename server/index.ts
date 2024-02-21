@@ -80,7 +80,7 @@ taskHandlers.post('/verify-document', async (request, response) => {
       name: documentAIFormProcessor,
       rawDocument: {
         content: imageData,
-        mimeType: 'application/pdf',
+        mimeType: 'image/jpeg',
       },
     })
   )[0].document;
