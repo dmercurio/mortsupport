@@ -27,13 +27,14 @@ const appEngineAppDelay = new time.Sleep(
 );
 [
   'roles/appengine.serviceAgent',
+  'roles/cloudtasks.enqueuer',
+  'roles/datastore.importExportAdmin',
   'roles/datastore.user',
+  'roles/documentai.apiUser',
   'roles/monitoring.metricWriter',
   'roles/secretmanager.admin',
-  'roles/cloudtasks.enqueuer',
-  'roles/storage.objectViewer',
   'roles/storage.objectCreator',
-  'roles/datastore.importExportAdmin',
+  'roles/storage.objectViewer',
 ].forEach((role) => {
   new gcp.projects.IAMMember(
     role,
