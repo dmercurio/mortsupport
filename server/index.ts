@@ -30,7 +30,6 @@ router.all('/api/create-document', async (request, response) => {
     birthdate: request.body.birthdate,
     ssnLast4: request.body.ssnLast4,
   });
-  console.log(document);
   response.send(document.id);
 });
 
@@ -88,8 +87,8 @@ taskHandlers.post('/verify-document', async (request, response) => {
   const fields =
     document?.pages?.flatMap((page) =>
       page.formFields?.map((field) => ({
-        fieldName: field.fieldName?.textAnchor?.content?.trim() || '',
-        fieldValue: field.fieldValue?.textAnchor?.content?.trim() || '',
+        fieldName: field.fieldName?.textAnchor?.content?.replaceAll('\n', ' ').trim() || '',
+        fieldValue: field.fieldValue?.textAnchor?.content?.replaceAll('\n', ' ').trim() || '',
       })),
     ) || [];
 
