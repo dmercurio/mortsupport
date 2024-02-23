@@ -27,6 +27,7 @@ function Complete() {
 
 export default function UploadDocument() {
   const {documentId} = useParams();
+  const [submitting, setSubmitting] = useState<boolean>(false);
   const [photoData, setPhotoData] = useState<ArrayBuffer>();
   const [complete, setComplete] = useState<boolean>(false);
   const [thumbnailBase64, setThumbnailBase64] = useState<string>('');
@@ -38,6 +39,7 @@ export default function UploadDocument() {
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setSubmitting(true);
     const uploadResult = await fetch(data!.url, {
       method: 'PUT',
       body: photoData,
@@ -50,6 +52,7 @@ export default function UploadDocument() {
         setComplete(true);
       }
     }
+    setSubmitting(false);
   };
 
   const readPhotoData = (e: React.ChangeEvent<HTMLInputElement>): Promise<ArrayBuffer> => {
@@ -120,7 +123,7 @@ export default function UploadDocument() {
             </label>
           </Stack>
           <div>
-            <input type="submit" value="Submit" disabled={!photoData} />
+            <input type="submit" value="Submit" disabled={!photoData || submitting} />
           </div>
         </Stack>
       </form>
