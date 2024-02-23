@@ -19,8 +19,7 @@ export default class LocalTasks {
     task.name = Math.floor(Math.random() * 10 ** 12).toString();
     console.log(`${JSON.stringify(task)}`);
     console.log(`${Buffer.from(task.appEngineHttpRequest.body, 'base64').toString()}`);
-    /*
-    await fetch(`http://localhost:8080${task.appEngineHttpRequest.relativeUri}`, {
+    fetch(`http://localhost:8080${task.appEngineHttpRequest.relativeUri}`, {
       headers: {
         ...task.appEngineHttpRequest.headers,
         'x-appengine-queuename': parent,
@@ -29,7 +28,6 @@ export default class LocalTasks {
       method: task.appEngineHttpRequest.httpMethod,
       body: Buffer.from(task.appEngineHttpRequest.body, 'base64').toString(),
     });
-    */
     return [task];
   }
 }
