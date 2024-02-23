@@ -46,6 +46,11 @@ class File {
     fs.mkdirSync(path.dirname(dst), {recursive: true});
     fs.writeFileSync(dst, data);
   }
+
+  async download(): Promise<[Buffer]> {
+    const src = path.join(this.bucket.localPrefix, this.name);
+    return [fs.readFileSync(src)];
+  }
 }
 
 export default class LocalStorage {
