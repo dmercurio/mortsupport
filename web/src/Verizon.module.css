@@ -22,7 +22,7 @@ button {
 
 .pageSection {
   text-align: center;
-  margin: 50px;
+  margin: 20px 50px;
   padding: 20px;
   width: 550px;
   border-radius: 8px;
@@ -40,6 +40,10 @@ button {
 
 .complete {
   background-color: #18a518;
+}
+
+.failure {
+  background-color: #c11b1b;
 }
 
 .incomplete {

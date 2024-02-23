@@ -8,12 +8,13 @@ import classNames from 'classnames';
 const API_PATH = process.env.REACT_APP_API_PATH;
 const POLLING_INTERVAL_SECONDS = 5;
 const STATUSES = ['WAITING', 'VERIFYING', 'SUCCESS', 'FAILURE'];
-const STEPS_CONTENT = [
+
+const stepsContent = (currentStep: number) => [
   <p>Upload Link Sent</p>,
   <p>
     File Uploaded <br /> <span style={{fontSize: '12px'}}>Verifying Document</span>
   </p>,
-  <p>Document Verified</p>,
+  <p>{currentStep === STATUSES.indexOf('FAILURE') ? 'Verification Failed' : 'Document Verified'}</p>,
 ];
 
 const customers: [Customer, string][] = [
@@ -87,39 +88,50 @@ function SingleCustomerView({customer}: {customer: Customer}) {
   }
 
   return (
-    <div className={css.pageSection} style={{height: '280px'}}>
-      <h3>Deceased Customer Verification</h3>
+    <>
+      <h3 style={{paddingLeft: '44px'}}>{customer.name}</h3>
+      <div className={css.pageSection} style={{height: '280px'}}>
+        <h3>Deceased Customer Verification</h3>
 
-      <button onClick={() => generateUploadLink()}>Send Document Upload Link</button>
+        <button onClick={() => generateUploadLink()}>Send Document Upload Link</button>
 
-      {uploadLink && (
-        <div>
-          <div className={css.progressBar}>
-            {STEPS_CONTENT.map((stepContent, index) => (
-              <div key={index} className={css.step}>
-                <img
-                  alt=""
-                  src={index === currentStep ? checked : circle}
-                  className={classNames(css.statusIcon, index <= currentStep ? css.complete : css.incomplete)}
-                />
-                {index === 0 ? (
-                  <a target="_blank" href={uploadLink} rel="noreferrer">
+        {uploadLink && (
+          <div>
+            <div className={css.progressBar}>
+              {stepsContent(currentStep).map((stepContent, index) => (
+                <div key={index} className={css.step}>
+                  {currentStep === STATUSES.indexOf('FAILURE') && index === 2 ? (
+                    <img
+                      alt=""
+                      src={index === currentStep ? checked : circle}
+                      className={classNames(css.statusIcon, css.failure)}
+                    />
+                  ) : (
+                    <img
+                      alt=""
+                      src={index === currentStep ? checked : circle}
+                      className={classNames(css.statusIcon, index <= currentStep ? css.complete : css.incomplete)}
+                    />
+                  )}
+                  {index === 0 ? (
+                    <a target="_blank" href={uploadLink} rel="noreferrer">
+                      <div>{stepContent}</div>
+                    </a>
+                  ) : (
                     <div>{stepContent}</div>
-                  </a>
-                ) : (
-                  <div>{stepContent}</div>
-                )}
-              </div>
-            ))}
-          </div>
+                  )}
+                </div>
+              ))}
+            </div>
 
-          <div className={css.barContainer}>
-            <div className={currentStep > 0 ? css.complete : css.emptyBar}></div>
-            <div className={currentStep > 1 ? css.complete : css.emptyBar}></div>
+            <div className={css.barContainer}>
+              <div className={currentStep > 0 ? css.complete : css.emptyBar}></div>
+              <div className={currentStep > 1 ? css.complete : css.emptyBar}></div>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 }
 
@@ -132,7 +144,11 @@ export default function Verizon() {
         <img alt="verizon logo" src={verizonlogo} width={100} height={100} />
         <h1>Customer Support</h1>
       </div>
-      {selectedCustomer ? <SingleCustomerView customer={selectedCustomer} /> : <CustomerList setSelectedCustomer={setSelectedCustomer} />}
+      {selectedCustomer ? (
+        <SingleCustomerView customer={selectedCustomer} />
+      ) : (
+        <CustomerList setSelectedCustomer={setSelectedCustomer} />
+      )}
     </>
   );
 }
