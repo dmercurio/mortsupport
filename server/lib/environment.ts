@@ -49,9 +49,12 @@ if (process.env.NODE_ENV === 'production') {
   bucket = 'bucket';
   const LocalDatastore = require('./local/datastore').default;
   datastore = new LocalDatastore('.local/datastore.sqlite3') as any as Datastore;
+  documentAI = new DocumentProcessorServiceClient();
+  documentAIFormProcessor = JSON.parse(
+    fs.readFileSync(`../infrastructure/outputs/staging/documentAI.json`, 'utf8'),
+  ).formProcessor;
   storage = new LocalStorage('.local/storage/') as any as Storage;
   tasks = new LocalTasks() as any as CloudTasksClient;
-  queuePath = '';
-  documentAIFormProcessor = '';
+  queuePath = 'queue';
   statusCheck = {path: '/status', content: 'OK'};
 }
