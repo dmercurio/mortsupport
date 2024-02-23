@@ -1,9 +1,10 @@
-import React, {useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
+import checked from './checked.png';
+import circle from './circle.png';
+import classNames from 'classnames';
 import css from './Verizon.module.css';
 import verizonlogo from './verizonlogo.png';
-import circle from './circle.png';
-import checked from './checked.png';
-import classNames from 'classnames';
+import x from './x.png';
 
 const API_PATH = process.env.REACT_APP_API_PATH;
 const POLLING_INTERVAL_SECONDS = 5;
@@ -101,11 +102,7 @@ function SingleCustomerView({customer}: {customer: Customer}) {
               {stepsContent(currentStep).map((stepContent, index) => (
                 <div key={index} className={css.step}>
                   {currentStep === STATUSES.indexOf('FAILURE') && index === 2 ? (
-                    <img
-                      alt=""
-                      src={index === currentStep ? checked : circle}
-                      className={classNames(css.statusIcon, css.failure)}
-                    />
+                    <img alt="" src={x} className={classNames(css.statusIcon, css.failure)} />
                   ) : (
                     <img
                       alt=""
