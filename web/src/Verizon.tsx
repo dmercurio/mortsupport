@@ -22,6 +22,7 @@ const customers: [Customer, string][] = [
   [{name: 'Jill Diane Harmon', birthdate: '11/11/1962', last4SSN: '7034'}, 'DC Colorado.pdf'],
   [{name: 'Francis Baird Hutto Jr', birthdate: '06/25/1926', last4SSN: '6754'}, 'DC Colorado2.pdf'],
   [{name: 'Melvin Lipman', birthdate: '08/12/1928', last4SSN: ''}, 'DC Connecticut 2008.pdf'],
+  [{name: 'Dorothy H Feigin', birthdate: '03/05/1932', last4SSN: ''}, 'DC Connecticut.pdf'],
 ];
 
 type Customer = {
