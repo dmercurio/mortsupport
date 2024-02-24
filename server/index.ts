@@ -1,4 +1,4 @@
-import * as fs from 'fs';
+import * as chrono from 'chrono-node';
 import Tasks, {taskHandlerMiddleware} from './lib/tasks';
 import compression from 'compression';
 import cors from 'cors';
@@ -13,6 +13,7 @@ const app = express();
 const router = Router();
 
 const DATE_FORMAT: Intl.DateTimeFormatOptions = {month: '2-digit', day: '2-digit', year: 'numeric'}; // MM/DD/YYYY
+const NAME_MODIFIERS = ['jr', 'sr', 'i', 'ii', 'iii'];
 
 // status check endpoint
 router.get(statusCheck.path, async (request, response) => {
@@ -96,30 +97,35 @@ taskHandlers.post('/verify-document', async (request, response) => {
     name
       .replaceAll(/[^a-zA-Z\s]/g, '')
       .split(/\s+/)
-      .map((part) => part.toLowerCase());
+      .map((part) => part.toLowerCase())
+      .filter((part) => !NAME_MODIFIERS.includes(part));
   const normalizeSSN = (ssn: string) => ssn.replaceAll(/[^0-9]/g, '').slice(-4);
 
   let birthdateVerified = false;
-  let nameVerified = false;
+  let firstNameVerified = false, lastNameVerified = false;
   let ssnVerified = false;
+  const expectedNameParts = normalizeName(documentObj.name);
   const parsedFields: Record<string, string> = {};
   for (let field of fields) {
     if (field?.fieldName?.match(/birth.*date|date.*birth/i) && !birthdateVerified) {
-      const birthdate = field.fieldValue ? new Date(field.fieldValue) : new Date();
-      parsedFields.birthdate = birthdate.toLocaleDateString('en-US', DATE_FORMAT);
+      const birthdate = chrono.parseDate(field.fieldValue)?.toLocaleDateString('en-US', DATE_FORMAT) || '';
+      parsedFields.birthdate = birthdate;
       birthdateVerified = parsedFields.birthdate === documentObj.birthdate;
-    } else if (field?.fieldName?.match(/name/i) && !nameVerified) {
-      const nameParts = normalizeName(field.fieldValue);
-      const documentNameParts = normalizeName(documentObj.name);
+    } else if (field?.fieldName?.match(/name|first|last/i) && (!firstNameVerified || !lastNameVerified)) {
+      const parsedNameParts = normalizeName(field.fieldValue);
       parsedFields.name = field.fieldValue;
-      nameVerified =
-        nameParts.length >= 2 && nameParts[0] === documentNameParts[0] && nameParts.at(-1) === documentNameParts.at(-1); // first and last name match
-    } else if (field?.fieldName?.match(/social.*security|social.*number/i) && !ssnVerified) {
+      if (parsedNameParts[0] === expectedNameParts[0]) {
+        firstNameVerified = true;
+      }
+      if (parsedNameParts.at(-1) === expectedNameParts.at(-1)) {
+        lastNameVerified = true;
+      }
+    } else if (field?.fieldName?.match(/social.*security|social.*number|ssn/i) && !ssnVerified) {
       parsedFields.ssnLast4 = normalizeSSN(field.fieldValue);
       ssnVerified = parsedFields.ssnLast4 === documentObj.ssnLast4;
     }
   }
-  const status: DocumentStatus = birthdateVerified && nameVerified && ssnVerified ? 'SUCCESS' : 'FAILURE';
+  const status: DocumentStatus = birthdateVerified && firstNameVerified && lastNameVerified && ssnVerified ? 'SUCCESS' : 'FAILURE';
   await DocumentStore.update({}, documentObj.id, {status: status, fields: parsedFields});
 
   response.send();
