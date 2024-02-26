@@ -8,6 +8,7 @@ import time from './lib/time';
 import {DocumentStatus, DocumentStore} from './DocumentStore';
 import {bucket, documentAI, documentAIFormProcessor, env, statusCheck, storage} from './lib/environment';
 import {router as localRouter} from './local';
+import {google} from '@google-cloud/documentai/build/protos/protos';
 
 const app = express();
 const router = Router();
@@ -75,15 +76,23 @@ taskHandlers.post('/verify-document', async (request, response) => {
   const documentObj = await DocumentStore.load({}, request.body.documentId);
   const [imageData] = await storage.bucket(bucket).file(`${documentObj.id}.jpg`).download();
 
-  const document = (
-    await documentAI.processDocument({
-      name: documentAIFormProcessor,
-      rawDocument: {
-        content: imageData,
-        mimeType: 'image/jpeg',
-      },
-    })
-  )[0].document;
+  let document: google.cloud.documentai.v1.IDocument | null | undefined;
+  try {
+    document = (
+      await documentAI.processDocument({
+        name: documentAIFormProcessor,
+        rawDocument: {
+          content: imageData,
+          mimeType: 'image/jpeg',
+        },
+      })
+    )[0].document;
+  } catch (e) {
+    console.error(e);
+    await DocumentStore.update({}, documentObj.id, {status: 'FAILURE'});
+    response.send();
+    return;
+  }
 
   const fields =
     document?.pages?.flatMap((page) =>
