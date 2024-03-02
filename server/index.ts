@@ -40,25 +40,26 @@ router.all('/api/document-status/:documentId', async (request, response) => {
   response.send({id: document.id, status: document.status});
 });
 
-router.get('/api/upload-url/:documentId', async (request, response) => {
+router.post('/api/upload-url/:documentId', async (request, response) => {
   const document = (await DocumentStore.query({}, {id: request.params.documentId})).at(0);
   if (!document) {
     response.sendStatus(404);
     return;
   }
 
+  const {extension, contentType} = request.body;
   const url = (
     await storage
       .bucket(bucket)
-      .file(`${document.id}.jpg`) // TODO prefix with clientId
+      .file(`${document.id}.${extension}`) // TODO prefix with clientId
       .getSignedUrl({
         action: 'write',
-        contentType: 'image/jpeg',
+        contentType: contentType,
         expires: Date.now() + time.milliseconds({hours: 1}),
         version: 'v4',
       })
   )[0];
-  response.send({url: url, complete: document.status !== 'WAITING'});
+  response.send({url: url});
 });
 
 router.post('/api/upload-complete/:documentId', async (request, response) => {
