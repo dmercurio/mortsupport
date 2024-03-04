@@ -130,7 +130,7 @@ export default function UploadDocument() {
     return {
       data: await readPhotoData(file),
       contentType: file.type,
-      extension: file.name.split(".").at(-1) || "jpg" // should there be something else for default
+      extension: file.name.split(".").at(-1)!
     };
   }
 
