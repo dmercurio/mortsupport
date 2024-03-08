@@ -1,2 +1,3 @@
-web/build/
 infrastructure/outputs/
+web/build/
+web/public/
