@@ -101,8 +101,8 @@ function SingleCustomerView({customer}: {customer: Customer}) {
       <div className={css.pageSection} style={{height: '310px'}}>
         <h3>Deceased Customer Verification</h3>
 
-        <label>Date of Death </label>
-        <input type="date" value={deathDate} onChange={(e) => setDeathDate(e.target.value)} />
+        <label style={{marginRight: '8px'}}>Date of Death </label>
+        <input type="date" value={deathDate} autoFocus={true} onChange={(e) => setDeathDate(e.target.value)} />
 
         <button onClick={() => generateUploadLink()} disabled={!deathDate}>
           Send Document Upload Link

@@ -105,10 +105,18 @@ button:disabled {
 }
 
 input[type='date'] {
-  border-radius: 10px;
+  border-radius: 8px;
   border: 1px solid slategray;
-  font-size: 18px;
-  font-weight: 400;
+  font-size: 16px;
+  font-weight: 200;
   height: 28px;
+  padding: 4px;
   text-transform: uppercase;
+  font-family: 'Inter';
+}
+input[type='date']::-webkit-datetime-edit-text,
+input[type='date']::-webkit-datetime-edit-month-field,
+input[type='date']::-webkit-datetime-edit-day-field,
+input[type='date']::-webkit-datetime-edit-year-field {
+  color: #555;
 }
