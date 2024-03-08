@@ -98,3 +98,17 @@ button {
 .customerList li i {
   color: #aaa;
 }
+
+button:disabled {
+  background-color: lightslategrey;
+  border-color: slategrey;
+}
+
+input[type='date'] {
+  border-radius: 10px;
+  border: 1px solid slategray;
+  font-size: 18px;
+  font-weight: 400;
+  height: 28px;
+  text-transform: uppercase;
+}

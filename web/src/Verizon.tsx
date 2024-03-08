@@ -49,6 +49,7 @@ function CustomerList({setSelectedCustomer}: {setSelectedCustomer: (customer: Cu
 function SingleCustomerView({customer}: {customer: Customer}) {
   const [uploadLink, setUploadLink] = useState('');
   const [currentStep, setCurrentStep] = useState(0);
+  const [deathDate, setDeathDate] = useState('');
 
   useEffect(() => {
     async function updateDocumentStatus() {
@@ -73,12 +74,17 @@ function SingleCustomerView({customer}: {customer: Customer}) {
   }, [uploadLink]);
 
   async function generateUploadLink() {
+    // convert date from yyyy-mm-dd to mm/dd/yyyy
+    const splitDate = deathDate.split('-');
+    const formattedDeathDate = splitDate.slice(1).concat(splitDate[0]).join('/');
+
     const uploadIdRequest = await fetch(`${API_PATH}/create-document`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         name: customer.name,
         birthdate: customer.birthdate,
+        deathdate: formattedDeathDate,
         ssnLast4: customer.last4SSN,
       }),
     });
@@ -92,10 +98,13 @@ function SingleCustomerView({customer}: {customer: Customer}) {
   return (
     <>
       <h3 style={{paddingLeft: '44px'}}>{customer.name}</h3>
-      <div className={css.pageSection} style={{height: '280px'}}>
+      <div className={css.pageSection} style={{height: '310px'}}>
         <h3>Deceased Customer Verification</h3>
 
-        <button onClick={() => generateUploadLink()}>Send Document Upload Link</button>
+        <label>Date of Death </label>
+        <input type='date' value={deathDate} onChange={(e) => setDeathDate(e.target.value)}/>
+
+        <button onClick={() => generateUploadLink()} disabled={!deathDate}>Send Document Upload Link</button>
 
         {uploadLink && (
           <div>

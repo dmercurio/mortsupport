@@ -30,6 +30,7 @@ router.all('/api/create-document', async (request, response) => {
   const document = await DocumentStore.create({
     name: request.body.name,
     birthdate: request.body.birthdate,
+    deathdate: request.body.deathdate,
     ssnLast4: request.body.ssnLast4,
   });
   response.send(document.id);
@@ -48,10 +49,14 @@ router.post('/api/upload-url/:documentId', async (request, response) => {
   }
 
   const {extension, contentType} = request.body;
+  const filename = `${document.id}.${extension}`;  // TODO prefix with clientId
+
+  await DocumentStore.update({}, request.params.documentId, {filename: filename, mimetype: contentType});
+
   const url = (
     await storage
       .bucket(bucket)
-      .file(`${document.id}.${extension}`) // TODO prefix with clientId
+      .file(filename)
       .getSignedUrl({
         action: 'write',
         contentType: contentType,
@@ -75,7 +80,7 @@ router.use('/tasks', taskHandlerMiddleware, taskHandlers);
 
 taskHandlers.post('/verify-document', async (request, response) => {
   const documentObj = await DocumentStore.load({}, request.body.documentId);
-  const [imageData] = await storage.bucket(bucket).file(`${documentObj.id}.jpg`).download();
+  const [imageData] = await storage.bucket(bucket).file(documentObj.filename!).download();
 
   let document: google.cloud.documentai.v1.IDocument | null | undefined;
   try {
@@ -84,7 +89,7 @@ taskHandlers.post('/verify-document', async (request, response) => {
         name: documentAIFormProcessor,
         rawDocument: {
           content: imageData,
-          mimeType: 'image/jpeg',
+          mimeType: documentObj.mimetype,
         },
       })
     )[0].document;
