@@ -102,9 +102,11 @@ function SingleCustomerView({customer}: {customer: Customer}) {
         <h3>Deceased Customer Verification</h3>
 
         <label>Date of Death </label>
-        <input type='date' value={deathDate} onChange={(e) => setDeathDate(e.target.value)}/>
+        <input type="date" value={deathDate} onChange={(e) => setDeathDate(e.target.value)} />
 
-        <button onClick={() => generateUploadLink()} disabled={!deathDate}>Send Document Upload Link</button>
+        <button onClick={() => generateUploadLink()} disabled={!deathDate}>
+          Send Document Upload Link
+        </button>
 
         {uploadLink && (
           <div>

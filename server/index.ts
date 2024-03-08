@@ -49,7 +49,7 @@ router.post('/api/upload-url/:documentId', async (request, response) => {
   }
 
   const {extension, contentType} = request.body;
-  const filename = `${document.id}.${extension}`;  // TODO prefix with clientId
+  const filename = `${document.id}.${extension}`; // TODO prefix with clientId
 
   await DocumentStore.update({}, request.params.documentId, {filename: filename, mimetype: contentType});
 
@@ -117,7 +117,8 @@ taskHandlers.post('/verify-document', async (request, response) => {
   const normalizeSSN = (ssn: string) => ssn.replaceAll(/[^0-9]/g, '').slice(-4);
 
   let birthdateVerified = false;
-  let firstNameVerified = false, lastNameVerified = false;
+  let firstNameVerified = false,
+    lastNameVerified = false;
   let ssnVerified = false;
   const expectedNameParts = normalizeName(documentObj.name);
   const parsedFields: Record<string, string> = {};
@@ -140,7 +141,8 @@ taskHandlers.post('/verify-document', async (request, response) => {
       ssnVerified = parsedFields.ssnLast4 === documentObj.ssnLast4;
     }
   }
-  const status: DocumentStatus = birthdateVerified && firstNameVerified && lastNameVerified && ssnVerified ? 'SUCCESS' : 'FAILURE';
+  const status: DocumentStatus =
+    birthdateVerified && firstNameVerified && lastNameVerified && ssnVerified ? 'SUCCESS' : 'FAILURE';
   await DocumentStore.update({}, documentObj.id, {status: status, fields: parsedFields});
 
   response.send();

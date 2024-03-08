@@ -44,7 +44,7 @@ export default function UploadDocument() {
   const [thumbnailBase64, setThumbnailBase64] = useState<string>('');
   const {data} = useFetch<Document>(`${API_PATH}/document-status/${documentId}`);
 
-  if (complete || data?.status !== "WAITING") {
+  if (complete || data?.status !== 'WAITING') {
     return <Complete />;
   }
 
@@ -52,11 +52,13 @@ export default function UploadDocument() {
     e.preventDefault();
     setSubmitting(true);
 
-    const uploadUrlRes = await (await fetch(`${API_PATH}/upload-url/${documentId}`, {
-      method: 'POST',
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ data, ...photoData })
-    })).json();
+    const uploadUrlRes = await (
+      await fetch(`${API_PATH}/upload-url/${documentId}`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({data, ...photoData}),
+      })
+    ).json();
 
     const uploadResult = await fetch(uploadUrlRes!.url, {
       method: 'PUT',
@@ -92,11 +94,11 @@ export default function UploadDocument() {
 
     // shouldn't ever happen, but required for pdf rendering
     if (!ctx) {
-      return Promise.reject(new Error("Error in createThumbnailBase64: failure in canvas.getContext()"));
+      return Promise.reject(new Error('Error in createThumbnailBase64: failure in canvas.getContext()'));
     }
 
     return new Promise<string>(async (resolve, reject) => {
-      if (photoData.extension === "pdf") {
+      if (photoData.extension === 'pdf') {
         const pdf = await getDocument(photoData.data).promise;
         const page = await pdf.getPage(1);
 
@@ -126,13 +128,13 @@ export default function UploadDocument() {
 
   const buildPhotoData = async (e: React.ChangeEvent<HTMLInputElement>): Promise<PhotoData> => {
     const file = e.target.files![0];
-    
+
     return {
       data: await readPhotoData(file),
       contentType: file.type,
-      extension: file.name.split(".").at(-1)!
+      extension: file.name.split('.').at(-1)!,
     };
-  }
+  };
 
   return (
     <FullCenter>
