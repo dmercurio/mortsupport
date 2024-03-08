@@ -43,6 +43,9 @@ export function phi<M extends Model>(target: M, name: string): void {
   !sensitiveProps.has(propsClass) && sensitiveProps.set(propsClass, []);
   sensitiveProps.get(propsClass)!.push(name);
 }
+export function pii<M extends Model>(target: M, name: string): void {
+  phi(target, name);
+}
 export function sensitive<M extends Model>(target: M, name: string): void {
   const propsClass = <typeof Model>target.constructor;
   !sensitiveProps.has(propsClass) && sensitiveProps.set(propsClass, []);
