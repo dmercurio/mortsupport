@@ -7,9 +7,14 @@ import {FullCenter, Stack} from './ui/layout';
 import {useFetch} from 'usehooks-ts';
 import {useParams} from 'react-router-dom';
 import {useState} from 'react';
+import {getDocument, GlobalWorkerOptions} from 'pdfjs-dist';
+
+// Required for pdfjs
+GlobalWorkerOptions.workerSrc = '/pdf.worker.mjs';
 
 const API_PATH = process.env.REACT_APP_API_PATH;
 const THUMBNAIL_CAPTURE_HEIGHT = 320;
+const PDF_THUMBNAIL_SCALE = 1.5;
 
 type Document = {
   id: string;
@@ -38,7 +43,7 @@ export default function UploadDocument() {
   const [complete, setComplete] = useState<boolean>(false);
   const [thumbnailBase64, setThumbnailBase64] = useState<string>('');
   const {data} = useFetch<Document>(`${API_PATH}/document-status/${documentId}`);
-  
+
   if (complete || data?.status !== "WAITING") {
     return <Complete />;
   }
@@ -81,27 +86,45 @@ export default function UploadDocument() {
     });
   };
 
-  const createThumbnailBase64 = (photoData: ArrayBuffer): Promise<string> => {
+  const createThumbnailBase64 = (photoData: PhotoData): Promise<string> => {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-    return new Promise<string>((resolve, reject) => {
-      const image = new Image();
-      image.onload = () => {
-        const aspectRatio = image.width / image.height;
-        const captureWidth = THUMBNAIL_CAPTURE_HEIGHT * aspectRatio;
-        canvas.width = captureWidth;
-        canvas.height = THUMBNAIL_CAPTURE_HEIGHT;
-        ctx?.drawImage(image, 0, 0, image.width, image.height, 0, 0, captureWidth, THUMBNAIL_CAPTURE_HEIGHT);
-        resolve(canvas.toDataURL('image/jpeg', 0.8));
-      };
-      image.onerror = (err) => {
-        reject(err);
-      };
-      image.src = `data:image/jpeg;base64,${Buffer.from(photoData).toString('base64')}`;
+
+    // shouldn't ever happen, but required for pdf rendering
+    if (!ctx) {
+      return Promise.reject(new Error("Error in createThumbnailBase64: failure in canvas.getContext()"));
+    }
+
+    return new Promise<string>(async (resolve, reject) => {
+      if (photoData.extension === "pdf") {
+        const pdf = await getDocument(photoData.data).promise;
+        const page = await pdf.getPage(1);
+
+        const viewport = page.getViewport({scale: PDF_THUMBNAIL_SCALE});
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        await page.render({canvasContext: ctx, viewport: viewport}).promise;
+        resolve(canvas.toDataURL());
+      } else {
+        const image = new Image();
+        image.onload = () => {
+          const aspectRatio = image.width / image.height;
+          const captureWidth = THUMBNAIL_CAPTURE_HEIGHT * aspectRatio;
+          canvas.width = captureWidth;
+          canvas.height = THUMBNAIL_CAPTURE_HEIGHT;
+          ctx?.drawImage(image, 0, 0, image.width, image.height, 0, 0, captureWidth, THUMBNAIL_CAPTURE_HEIGHT);
+          resolve(canvas.toDataURL('image/jpeg', 0.8));
+        };
+        image.onerror = (err) => {
+          reject(err);
+        };
+        image.src = `data:image/jpeg;base64,${Buffer.from(photoData.data).toString('base64')}`;
+      }
     });
   };
 
-  async function buildPhotoData(e: React.ChangeEvent<HTMLInputElement>): Promise<PhotoData> {
+  const buildPhotoData = async (e: React.ChangeEvent<HTMLInputElement>): Promise<PhotoData> => {
     const file = e.target.files![0];
     
     return {
@@ -139,7 +162,7 @@ export default function UploadDocument() {
                 onChange={async (e) => {
                   const newPhotoData = await buildPhotoData(e);
                   setPhotoData(newPhotoData);
-                  setThumbnailBase64(await createThumbnailBase64(newPhotoData.data));
+                  setThumbnailBase64(await createThumbnailBase64(newPhotoData));
                 }}
               />
             </label>
