@@ -12,6 +12,7 @@ export class Document extends Model {
   @pii deathdate!: string;
   @pii ssnLast4?: string;
   status?: DocumentStatus = 'WAITING';
+  statusMessage?: string;
   @pii fields?: Record<string, string> = {};
   mimetype?: string;
 }
