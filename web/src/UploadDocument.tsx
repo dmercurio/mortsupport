@@ -11,9 +11,15 @@ import {useState} from 'react';
 const API_PATH = process.env.REACT_APP_API_PATH;
 const THUMBNAIL_CAPTURE_HEIGHT = 320;
 
-type UploadUrl = {
-  url: string;
-  complete: boolean;
+type Document = {
+  id: string;
+  status: string;
+};
+
+type PhotoData = {
+  data: ArrayBuffer;
+  contentType: string;
+  extension: string;
 };
 
 function Complete() {
@@ -28,22 +34,29 @@ function Complete() {
 export default function UploadDocument() {
   const {documentId} = useParams();
   const [submitting, setSubmitting] = useState<boolean>(false);
-  const [photoData, setPhotoData] = useState<ArrayBuffer>();
+  const [photoData, setPhotoData] = useState<PhotoData>();
   const [complete, setComplete] = useState<boolean>(false);
   const [thumbnailBase64, setThumbnailBase64] = useState<string>('');
-  const {data /*, error*/} = useFetch<UploadUrl>(`${API_PATH}/upload-url/${documentId}`);
-
-  if (complete || data?.complete) {
+  const {data} = useFetch<Document>(`${API_PATH}/document-status/${documentId}`);
+  
+  if (complete || data?.status !== "WAITING") {
     return <Complete />;
   }
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitting(true);
-    const uploadResult = await fetch(data!.url, {
+
+    const uploadUrlRes = await (await fetch(`${API_PATH}/upload-url/${documentId}`, {
+      method: 'POST',
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ data, ...photoData })
+    })).json();
+
+    const uploadResult = await fetch(uploadUrlRes!.url, {
       method: 'PUT',
-      body: photoData,
-      headers: {'Content-Type': 'image/jpeg'},
+      body: photoData!.data,
+      headers: {'Content-Type': photoData!.contentType},
     });
 
     if (uploadResult.ok) {
@@ -55,8 +68,7 @@ export default function UploadDocument() {
     setSubmitting(false);
   };
 
-  const readPhotoData = (e: React.ChangeEvent<HTMLInputElement>): Promise<ArrayBuffer> => {
-    const file = e.target.files![0];
+  const readPhotoData = (file: File): Promise<ArrayBuffer> => {
     return new Promise<ArrayBuffer>((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -89,6 +101,16 @@ export default function UploadDocument() {
     });
   };
 
+  async function buildPhotoData(e: React.ChangeEvent<HTMLInputElement>): Promise<PhotoData> {
+    const file = e.target.files![0];
+    
+    return {
+      data: await readPhotoData(file),
+      contentType: file.type,
+      extension: file.name.split(".").at(-1) || "jpg" // should there be something else for default
+    };
+  }
+
   return (
     <FullCenter>
       <form onSubmit={onSubmit}>
@@ -115,9 +137,9 @@ export default function UploadDocument() {
                 type="file"
                 accept="application/pdf,image/gif,image/tiff,image/jpeg,image/png,image/bmp,image/webp"
                 onChange={async (e) => {
-                  const newPhotoData = await readPhotoData(e);
+                  const newPhotoData = await buildPhotoData(e);
                   setPhotoData(newPhotoData);
-                  setThumbnailBase64(await createThumbnailBase64(newPhotoData));
+                  setThumbnailBase64(await createThumbnailBase64(newPhotoData.data));
                 }}
               />
             </label>
