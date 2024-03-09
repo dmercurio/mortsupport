@@ -22,7 +22,7 @@ export async function verify(documentObj: Document) {
     )[0].document;
   } catch (e) {
     console.error(e);
-    await DocumentStore.update({}, documentObj.id, {status: 'FAILURE'});
+    await DocumentStore.update({}, documentObj.id, {status: 'FAILURE', statusMessage: 'Error processing document'});
     return;
   }
 
@@ -48,8 +48,10 @@ export async function verify(documentObj: Document) {
   let ssnVerified = false;
   let deathdateVerified = false;
   let certificateVerified = false;
+  const certificateKeywords = new Set<string>();
   const expectedNameParts = normalizeName(documentObj.name);
   const parsedFields: Record<string, string> = {};
+  let match: RegExpMatchArray | null | undefined;
   for (let field of fields) {
     if (field?.fieldName?.match(/birth.*date|date.*birth/i) && !birthdateVerified) {
       const birthdate = chrono.parseDate(field.fieldValue)?.toLocaleDateString('en-US', DATE_FORMAT) || '';
@@ -71,10 +73,13 @@ export async function verify(documentObj: Document) {
       const deathdate = chrono.parseDate(field.fieldValue)?.toLocaleDateString('en-US', DATE_FORMAT) || '';
       parsedFields.deathdate = deathdate;
       deathdateVerified = parsedFields.deathdate === documentObj.deathdate;
+    } else if (match = field?.fieldName?.match(/(location|place|time|county).*death/i)) {
+      certificateKeywords.add(match[1]);
+      certificateVerified = certificateKeywords.size >= 2;
     }
   }
   const status: DocumentStatus =
-    birthdateVerified && firstNameVerified && lastNameVerified && ssnVerified && deathdateVerified ? 'SUCCESS' : 'FAILURE';
+    birthdateVerified && firstNameVerified && lastNameVerified && ssnVerified && deathdateVerified && certificateVerified ? 'SUCCESS' : 'FAILURE';
   let statusMessage = '';
   if (!firstNameVerified || !lastNameVerified) {
     statusMessage = 'Name mismatch';
