@@ -58,6 +58,14 @@ button {
   text-align: center;
 }
 
+.step p {
+  margin-bottom: 0;
+}
+
+.step .statusSubtext {
+  font-size: 12px;
+}
+
 .progressBar {
   display: flex;
   margin: 30px auto;

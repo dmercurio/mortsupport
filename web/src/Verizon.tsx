@@ -8,15 +8,6 @@ import x from './x.png';
 
 const API_PATH = process.env.REACT_APP_API_PATH;
 const POLLING_INTERVAL_SECONDS = 5;
-const STATUSES = ['WAITING', 'VERIFYING', 'SUCCESS', 'FAILURE'];
-
-const stepsContent = (currentStep: number) => [
-  <p>Upload Link Sent</p>,
-  <p>
-    File Uploaded <br /> <span style={{fontSize: '12px'}}>Verifying Document</span>
-  </p>,
-  <p>{currentStep === STATUSES.indexOf('FAILURE') ? 'Verification Failed' : 'Document Verified'}</p>,
-];
 
 const customers: [Customer, string][] = [
   [{name: 'Jill Diane Harmon', birthdate: '11/11/1962', last4SSN: '7034'}, 'DC Colorado.pdf'],
@@ -48,7 +39,8 @@ function CustomerList({setSelectedCustomer}: {setSelectedCustomer: (customer: Cu
 
 function SingleCustomerView({customer}: {customer: Customer}) {
   const [uploadLink, setUploadLink] = useState('');
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStatus, setCurrentStatus] = useState('WAITING');
+  const [statusReason, setStatusReason] = useState('');
   const [deathDate, setDeathDate] = useState('');
 
   useEffect(() => {
@@ -61,7 +53,7 @@ function SingleCustomerView({customer}: {customer: Customer}) {
       const documentStatusRequest = await fetch(`${API_PATH}/document-status/${uploadId}`);
       if (documentStatusRequest.ok) {
         const {status}: {status: string} = await documentStatusRequest.json();
-        setCurrentStep(STATUSES.indexOf(status));
+        setCurrentStatus(status);
       }
     }
 
@@ -111,31 +103,53 @@ function SingleCustomerView({customer}: {customer: Customer}) {
         {uploadLink && (
           <div>
             <div className={css.progressBar}>
-              {stepsContent(currentStep).map((stepContent, index) => (
-                <div key={index} className={css.step}>
-                  {currentStep === STATUSES.indexOf('FAILURE') && index === 2 ? (
-                    <img alt="" src={x} className={classNames(css.statusIcon, css.failure)} />
-                  ) : (
-                    <img
-                      alt=""
-                      src={index === currentStep ? checked : circle}
-                      className={classNames(css.statusIcon, index <= currentStep ? css.complete : css.incomplete)}
-                    />
-                  )}
-                  {index === 0 ? (
-                    <a target="_blank" href={uploadLink} rel="noreferrer">
-                      <div>{stepContent}</div>
-                    </a>
-                  ) : (
-                    <div>{stepContent}</div>
-                  )}
+              <div className={css.step}>
+                <img
+                  alt=""
+                  src={currentStatus === 'WAITING' ? checked : circle}
+                  className={classNames(css.statusIcon, css.complete)}
+                />
+                <div>
+                  <a target="_blank" href={uploadLink} rel="noreferrer">
+                    <p>Upload Link Sent</p>
+                  </a>
                 </div>
-              ))}
+              </div>
+              <div className={css.step}>
+                <img
+                  alt=""
+                  src={currentStatus === 'VERIFYING' ? checked : circle}
+                  className={classNames(css.statusIcon, currentStatus === 'WAITING' ? css.incomplete : css.complete)}
+                />
+                <div>
+                  <p>File Uploaded</p>
+                  <span className={css.statusSubtext}>Verifying Document</span>
+                </div>
+              </div>
+              <div className={css.step}>
+              {currentStatus === 'FAILURE' ? (
+                <>
+                 <img alt="" src={x} className={classNames(css.statusIcon, css.failure)} />
+                 <div>
+                  <p>Verification Failed</p>
+                  <span className={css.statusSubtext}>{statusReason}</span>
+                 </div>
+                </>
+              ) : (
+                <>
+                  <img
+                    alt=""
+                    src={currentStatus === 'SUCCESS' ? checked : circle}
+                    className={classNames(css.statusIcon, currentStatus === 'SUCCESS' ? css.complete : css.incomplete)}
+                  />
+                  <p>Document Verified</p>
+                </>
+              )}
+              </div>
             </div>
-
             <div className={css.barContainer}>
-              <div className={currentStep > 0 ? css.complete : css.emptyBar}></div>
-              <div className={currentStep > 1 ? css.complete : css.emptyBar}></div>
+              <div className={currentStatus === 'WAITING' ? css.emptyBar : css.complete}></div>
+              <div className={['SUCCESS', 'FAILURE'].includes(currentStatus) ? css.complete : css.emptyBar}></div>
             </div>
           </div>
         )}
