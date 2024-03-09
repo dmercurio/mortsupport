@@ -42,6 +42,7 @@ export default function UploadDocument() {
   const [photoDataBuffer, setPhotoDataBuffer] = useState<ArrayBuffer>(new ArrayBuffer(0));
   const [photoData, setPhotoData] = useState<PhotoData>();
   const [complete, setComplete] = useState<boolean>(false);
+  const [loadingThumbnail, setLoadingThumbnail] = useState<boolean>(false);
   const [thumbnailBase64, setThumbnailBase64] = useState<string>('');
   const {data} = useFetch<Document>(`${API_PATH}/document-status/${documentId}`);
 
@@ -150,26 +151,37 @@ export default function UploadDocument() {
           </h2>
           <Stack className={css.shareBox}>
             <label className={classnames(css.tapToShare, {[css.tapToShareEmpty]: !thumbnailBase64})}>
-              {thumbnailBase64 ? (
-                <img
-                  alt=""
-                  src={thumbnailBase64}
-                  style={{maxWidth: 240, maxHeight: 160, border: '1px solid #ddd', padding: '2px'}}
-                />
-              ) : (
-                <>
-                  <div>Tap to Share</div>
-                  <img alt="" src={camera} width={80} height={80} />
-                </>
-              )}
+              {loadingThumbnail && <p className={css.loadingDots} />}
+              {(() => {
+                if (!loadingThumbnail) {
+                  if (thumbnailBase64) {
+                    return (
+                      <img
+                        alt=""
+                        src={thumbnailBase64}
+                        style={{maxWidth: 240, maxHeight: 160, border: '1px solid #ddd', padding: '2px'}}
+                      />
+                    );
+                  } else {
+                    return (
+                      <>
+                        <div>Tap to Share</div>
+                        <img alt="" src={camera} width={80} height={80} />
+                      </>
+                    );
+                  }
+                }
+              })()}
               <input
                 type="file"
                 accept="application/pdf,image/gif,image/tiff,image/jpeg,image/png,image/bmp,image/webp"
                 onChange={async (e) => {
+                  setLoadingThumbnail(true);
                   const newPhotoData = await buildPhotoData(e);
                   setPhotoData(newPhotoData);
                   setPhotoDataBuffer(newPhotoData.data);
                   setThumbnailBase64(await createThumbnailBase64(newPhotoData));
+                  setLoadingThumbnail(false);
                 }}
               />
             </label>
