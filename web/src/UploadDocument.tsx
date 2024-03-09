@@ -39,6 +39,7 @@ function Complete() {
 export default function UploadDocument() {
   const {documentId} = useParams();
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const [photoDataBuffer, setPhotoDataBuffer] = useState<ArrayBuffer>(new ArrayBuffer(0));
   const [photoData, setPhotoData] = useState<PhotoData>();
   const [complete, setComplete] = useState<boolean>(false);
   const [thumbnailBase64, setThumbnailBase64] = useState<string>('');
@@ -88,7 +89,7 @@ export default function UploadDocument() {
     });
   };
 
-  const createThumbnailBase64 = (photoData: PhotoData): Promise<string> => {
+  const createThumbnailBase64 = (thumbnailPhotoData: PhotoData): Promise<string> => {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
 
@@ -98,8 +99,11 @@ export default function UploadDocument() {
     }
 
     return new Promise<string>(async (resolve, reject) => {
-      if (photoData.extension === 'pdf') {
-        const pdf = await getDocument(photoData.data).promise;
+      if (thumbnailPhotoData.extension === 'pdf') {
+        const photoDataThumbnailBuffer = new ArrayBuffer(thumbnailPhotoData.data.byteLength);
+        new Uint8Array(photoDataThumbnailBuffer).set(new Uint8Array(thumbnailPhotoData.data));
+
+        const pdf = await getDocument(photoDataThumbnailBuffer).promise;
         const page = await pdf.getPage(1);
 
         const viewport = page.getViewport({scale: PDF_THUMBNAIL_SCALE});
@@ -121,7 +125,7 @@ export default function UploadDocument() {
         image.onerror = (err) => {
           reject(err);
         };
-        image.src = `data:image/jpeg;base64,${Buffer.from(photoData.data).toString('base64')}`;
+        image.src = `data:image/jpeg;base64,${Buffer.from(photoDataBuffer).toString('base64')}`;
       }
     });
   };
@@ -164,6 +168,7 @@ export default function UploadDocument() {
                 onChange={async (e) => {
                   const newPhotoData = await buildPhotoData(e);
                   setPhotoData(newPhotoData);
+                  setPhotoDataBuffer(newPhotoData.data);
                   setThumbnailBase64(await createThumbnailBase64(newPhotoData));
                 }}
               />
