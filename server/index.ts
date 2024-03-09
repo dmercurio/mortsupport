@@ -38,7 +38,7 @@ router.all('/api/create-document', async (request, response) => {
 
 router.all('/api/document-status/:documentId', async (request, response) => {
   const document = await DocumentStore.load({}, request.params.documentId);
-  response.send({id: document.id, status: document.status});
+  response.send({id: document.id, status: document.status, statusMessage: document.statusMessage});
 });
 
 router.post('/api/upload-url/:documentId', async (request, response) => {

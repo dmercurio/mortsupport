@@ -40,7 +40,7 @@ function CustomerList({setSelectedCustomer}: {setSelectedCustomer: (customer: Cu
 function SingleCustomerView({customer}: {customer: Customer}) {
   const [uploadLink, setUploadLink] = useState('');
   const [currentStatus, setCurrentStatus] = useState('WAITING');
-  const [statusReason, setStatusReason] = useState('');
+  const [statusMessage, setStatusMessage] = useState('');
   const [deathDate, setDeathDate] = useState('');
 
   useEffect(() => {
@@ -52,8 +52,9 @@ function SingleCustomerView({customer}: {customer: Customer}) {
 
       const documentStatusRequest = await fetch(`${API_PATH}/document-status/${uploadId}`);
       if (documentStatusRequest.ok) {
-        const {status}: {status: string} = await documentStatusRequest.json();
+        const {status, statusMessage} = await documentStatusRequest.json();
         setCurrentStatus(status);
+        setStatusMessage(statusMessage);
       }
     }
 
@@ -132,7 +133,7 @@ function SingleCustomerView({customer}: {customer: Customer}) {
                  <img alt="" src={x} className={classNames(css.statusIcon, css.failure)} />
                  <div>
                   <p>Verification Failed</p>
-                  <span className={css.statusSubtext}>{statusReason}</span>
+                  <span className={css.failedStatusSubtext}>{statusMessage}</span>
                  </div>
                 </>
               ) : (

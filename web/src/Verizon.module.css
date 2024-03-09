@@ -65,6 +65,10 @@ button {
 .step .statusSubtext {
   font-size: 12px;
 }
+.step .failedStatusSubtext {
+  font-size: 12px;
+  color: #c11b1b;
+}
 
 .progressBar {
   display: flex;
