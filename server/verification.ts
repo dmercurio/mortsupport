@@ -45,7 +45,7 @@ export async function verify(documentObj: Document) {
   let birthdateVerified = false;
   let firstNameVerified = false;
   let lastNameVerified = false;
-  let ssnVerified = false;
+  let ssnVerified = documentObj.ssnLast4 === '';
   let deathdateVerified = false;
   let certificateVerified = false;
   const certificateKeywords = new Set<string>();
@@ -66,14 +66,14 @@ export async function verify(documentObj: Document) {
       if (parsedNameParts.at(-1) === expectedNameParts.at(-1)) {
         lastNameVerified = true;
       }
-    } else if (field?.fieldName?.match(/social.*security|social.*number|ssn/i) && !ssnVerified) {
+    } else if (field?.fieldName?.match(/(social.*security)|(social.*number)|ssn/i) && !ssnVerified) {
       parsedFields.ssnLast4 = normalizeSSN(field.fieldValue);
       ssnVerified = parsedFields.ssnLast4 === documentObj.ssnLast4;
-    } else if (field?.fieldName?.match(/death.*date|date.*death/i) && !deathdateVerified) {
+    } else if (field?.fieldName?.match(/((death|dead).*date)|(date.*(death|dead))/i) && !deathdateVerified) {
       const deathdate = chrono.parseDate(field.fieldValue)?.toLocaleDateString('en-US', DATE_FORMAT) || '';
       parsedFields.deathdate = deathdate;
       deathdateVerified = parsedFields.deathdate === documentObj.deathdate;
-    } else if ((match = field?.fieldName?.match(/(location|place|time|county).*death/i))) {
+    } else if ((match = field?.fieldName?.match(/(location|place|time|county)/i))) {
       certificateKeywords.add(match[1]);
       certificateVerified = certificateKeywords.size >= 2;
     }
