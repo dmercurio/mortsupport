@@ -73,13 +73,20 @@ export async function verify(documentObj: Document) {
       const deathdate = chrono.parseDate(field.fieldValue)?.toLocaleDateString('en-US', DATE_FORMAT) || '';
       parsedFields.deathdate = deathdate;
       deathdateVerified = parsedFields.deathdate === documentObj.deathdate;
-    } else if (match = field?.fieldName?.match(/(location|place|time|county).*death/i)) {
+    } else if ((match = field?.fieldName?.match(/(location|place|time|county).*death/i))) {
       certificateKeywords.add(match[1]);
       certificateVerified = certificateKeywords.size >= 2;
     }
   }
   const status: DocumentStatus =
-    birthdateVerified && firstNameVerified && lastNameVerified && ssnVerified && deathdateVerified && certificateVerified ? 'SUCCESS' : 'FAILURE';
+    birthdateVerified &&
+    firstNameVerified &&
+    lastNameVerified &&
+    ssnVerified &&
+    deathdateVerified &&
+    certificateVerified
+      ? 'SUCCESS'
+      : 'FAILURE';
   let statusMessage = '';
   if (!firstNameVerified || !lastNameVerified) {
     statusMessage = 'Name mismatch';

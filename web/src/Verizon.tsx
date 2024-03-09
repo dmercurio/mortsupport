@@ -128,24 +128,27 @@ function SingleCustomerView({customer}: {customer: Customer}) {
                 </div>
               </div>
               <div className={css.step}>
-              {currentStatus === 'FAILURE' ? (
-                <>
-                 <img alt="" src={x} className={classNames(css.statusIcon, css.failure)} />
-                 <div>
-                  <p>Verification Failed</p>
-                  <span className={css.failedStatusSubtext}>{statusMessage}</span>
-                 </div>
-                </>
-              ) : (
-                <>
-                  <img
-                    alt=""
-                    src={currentStatus === 'SUCCESS' ? checked : circle}
-                    className={classNames(css.statusIcon, currentStatus === 'SUCCESS' ? css.complete : css.incomplete)}
-                  />
-                  <p>Document Verified</p>
-                </>
-              )}
+                {currentStatus === 'FAILURE' ? (
+                  <>
+                    <img alt="" src={x} className={classNames(css.statusIcon, css.failure)} />
+                    <div>
+                      <p>Verification Failed</p>
+                      <span className={css.failedStatusSubtext}>{statusMessage}</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <img
+                      alt=""
+                      src={currentStatus === 'SUCCESS' ? checked : circle}
+                      className={classNames(
+                        css.statusIcon,
+                        currentStatus === 'SUCCESS' ? css.complete : css.incomplete,
+                      )}
+                    />
+                    <p>Document Verified</p>
+                  </>
+                )}
               </div>
             </div>
             <div className={css.barContainer}>
