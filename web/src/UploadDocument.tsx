@@ -126,7 +126,7 @@ export default function UploadDocument() {
         image.onerror = (err) => {
           reject(err);
         };
-        image.src = `data:image/jpeg;base64,${Buffer.from(photoDataBuffer).toString('base64')}`;
+        image.src = `data:image/jpeg;base64,${Buffer.from(thumbnailPhotoData.data).toString('base64')}`;
       }
     });
   };
@@ -180,7 +180,11 @@ export default function UploadDocument() {
                   const newPhotoData = await buildPhotoData(e);
                   setPhotoData(newPhotoData);
                   setPhotoDataBuffer(newPhotoData.data);
-                  setThumbnailBase64(await createThumbnailBase64(newPhotoData));
+                  try {
+                    setThumbnailBase64(await createThumbnailBase64(newPhotoData));
+                  } catch (e) {
+                    console.error('unable to create thumbnail', e);
+                  }
                   setLoadingThumbnail(false);
                 }}
               />
