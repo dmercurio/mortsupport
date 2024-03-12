@@ -104,7 +104,10 @@ button {
   list-style-type: none;
   margin: 8px;
   padding: 12px;
-  width: 400px;
+  width: 600px;
+}
+.customerList li:hover {
+  background-color: #efefef;
 }
 
 .customerList li i {
