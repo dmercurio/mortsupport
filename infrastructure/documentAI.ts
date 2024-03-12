@@ -19,7 +19,16 @@ export const formProcessor = new gcp.essentialcontacts.DocumentAiProcessor('form
   project: projectId,
   type: 'FORM_PARSER_PROCESSOR',
 });
-formProcessor.id.apply((id) => {
+export const idProofingProcessor = new gcp.essentialcontacts.DocumentAiProcessor('idProofingProcessor', {
+  displayName: 'idProofingProcessor',
+  location: config.require('documentAILocation'),
+  project: projectId,
+  type: 'ID_PROOFING_PROCESSOR',
+});
+pulumi.all([formProcessor.id, idProofingProcessor.id]).apply(([formProcessorId, idProofingProcessorId]) => {
   fs.mkdirSync(`outputs/${stack}`, {recursive: true});
-  fs.writeFileSync(`outputs/${stack}/documentAI.json`, JSON.stringify({formProcessor: id}));
+  fs.writeFileSync(
+    `outputs/${stack}/documentAI.json`,
+    JSON.stringify({formProcessor: formProcessorId, idProofingProcessor: idProofingProcessorId}),
+  );
 });
