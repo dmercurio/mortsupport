@@ -1,6 +1,6 @@
 import * as chrono from 'chrono-node';
 import {Document, DocumentStatus, DocumentStore} from './DocumentStore';
-import {bucket, documentAI, documentAIFormProcessor, storage} from './lib/environment';
+import {bucket, documentAI, documentAIFormProcessor, idProofingProcessor, storage} from './lib/environment';
 import {google} from '@google-cloud/documentai/build/protos/protos';
 
 const DATE_FORMAT: Intl.DateTimeFormatOptions = {month: '2-digit', day: '2-digit', year: 'numeric'}; // MM/DD/YYYY
@@ -10,21 +10,35 @@ export async function verify(documentObj: Document) {
   const [imageData] = await storage.bucket(bucket).file(documentObj.filename!).download();
 
   let document: google.cloud.documentai.v1.IDocument | null | undefined;
+  let idProof: google.cloud.documentai.v1.IDocument | null | undefined;
   try {
-    document = (
-      await documentAI.processDocument({
+    const [documentResult, idProofResult] = await Promise.all([
+      documentAI.processDocument({
         name: documentAIFormProcessor,
         rawDocument: {
           content: imageData,
           mimeType: documentObj.mimetype,
         },
-      })
-    )[0].document;
+      }),
+      documentAI.processDocument({
+        name: idProofingProcessor,
+        rawDocument: {
+          content: imageData,
+          mimeType: documentObj.mimetype,
+        },
+      }),
+    ]);
+    document = documentResult[0].document;
+    idProof = idProofResult[0].document;
   } catch (e) {
     console.error(e);
     await DocumentStore.update({}, documentObj.id, {status: 'FAILURE', statusMessage: 'Error processing document'});
     return;
   }
+
+  const idProofEntities = new Map(idProof?.entities?.map((entity) => (
+    [entity.type, entity.normalizedValue?.text]
+  )));
 
   const fields =
     document?.pages?.flatMap((page) =>
@@ -48,6 +62,7 @@ export async function verify(documentObj: Document) {
   let ssnVerified = documentObj.ssnLast4 === '';
   let deathdateVerified = false;
   let certificateVerified = false;
+  let idProofVerified = idProofEntities.get('fraud_signals_is_identity_document') === 'PASS';
   const certificateKeywords = new Set<string>();
   const expectedNameParts = normalizeName(documentObj.name);
   const parsedFields: Record<string, string> = {};
@@ -84,11 +99,14 @@ export async function verify(documentObj: Document) {
     lastNameVerified &&
     ssnVerified &&
     deathdateVerified &&
-    certificateVerified
+    certificateVerified &&
+    idProofVerified
       ? 'SUCCESS'
       : 'FAILURE';
   let statusMessage = '';
-  if (!firstNameVerified || !lastNameVerified) {
+  if (!idProofVerified || !certificateVerified) {
+    statusMessage = 'Unable to verify certificate';
+  } else if (!firstNameVerified || !lastNameVerified) {
     statusMessage = 'Name mismatch';
   } else if (!birthdateVerified) {
     statusMessage = 'Birthdate mismatch';
@@ -96,8 +114,6 @@ export async function verify(documentObj: Document) {
     statusMessage = 'SSN mismatch';
   } else if (!deathdateVerified) {
     statusMessage = 'Date of death mismatch';
-  } else if (!certificateVerified) {
-    statusMessage = 'Unable to verify certificate';
   }
   await DocumentStore.update({}, documentObj.id, {status, statusMessage, fields: parsedFields});
 }
