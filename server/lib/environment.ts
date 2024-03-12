@@ -26,6 +26,7 @@ export let bucket: string,
   datastore: Datastore,
   documentAI: DocumentProcessorServiceClient,
   documentAIFormProcessor: string,
+  idProofingProcessor: string,
   queuePath: string,
   statusCheck: {path: string; content: string},
   storage: Storage,
@@ -35,9 +36,11 @@ if (process.env.NODE_ENV === 'production') {
   bucket = JSON.parse(fs.readFileSync(`../infrastructure/outputs/${env}/storage.json`, 'utf8')).bucket;
   datastore = new Datastore({projectId: projectId});
   documentAI = new DocumentProcessorServiceClient();
-  documentAIFormProcessor = JSON.parse(
+  const documentAIProcessors = JSON.parse(
     fs.readFileSync(`../infrastructure/outputs/${env}/documentAI.json`, 'utf8'),
-  ).formProcessor;
+  );
+  documentAIFormProcessor = documentAIProcessors.formProcessor;
+  idProofingProcessor = documentAIProcessors.idProofingProcessor;
   storage = new Storage();
   tasks = new CloudTasksClient();
   const {name: queueName, location: queueLocation} = JSON.parse(
@@ -50,9 +53,11 @@ if (process.env.NODE_ENV === 'production') {
   const LocalDatastore = require('./local/datastore').default;
   datastore = new LocalDatastore('.local/datastore.sqlite3') as any as Datastore;
   documentAI = new DocumentProcessorServiceClient();
-  documentAIFormProcessor = JSON.parse(
+  const documentAIProcessors = JSON.parse(
     fs.readFileSync(`../infrastructure/outputs/staging/documentAI.json`, 'utf8'),
-  ).formProcessor;
+  );
+  documentAIFormProcessor = documentAIProcessors.formProcessor;
+  idProofingProcessor = documentAIProcessors.idProofingProcessor;
   storage = new LocalStorage('.local/storage/') as any as Storage;
   tasks = new LocalTasks() as any as CloudTasksClient;
   queuePath = 'queue';
