@@ -57,29 +57,24 @@ export async function verify(documentObj: Document) {
   const normalizeSSN = (ssn: string) => ssn.replaceAll(/[^0-9]/g, '').slice(-4);
 
   let birthdateVerified = false;
-  let firstNameVerified = false;
-  let lastNameVerified = false;
   let ssnVerified = documentObj.ssnLast4 === '';
   let deathdateVerified = false;
   let certificateVerified = false;
   let idProofVerified = idProofEntities.get('fraud_signals_is_identity_document') === 'PASS';
   const certificateKeywords = new Set<string>();
   const expectedNameParts = normalizeName(documentObj.name);
-  const parsedFields: Record<string, string> = {};
+  const parsedFields: Record<string, any> = {};
+  const detectedNames = new Set<string>();
   let match: RegExpMatchArray | null | undefined;
   for (let field of fields) {
     if (field?.fieldName?.match(/birth.*date|date.*birth/i) && !birthdateVerified) {
       const birthdate = chrono.parseDate(field.fieldValue)?.toLocaleDateString('en-US', DATE_FORMAT) || '';
       parsedFields.birthdate = birthdate;
       birthdateVerified = parsedFields.birthdate === documentObj.birthdate;
-    } else if (field?.fieldName?.match(/name|first|last/i) && (!firstNameVerified || !lastNameVerified)) {
+    } else if (field?.fieldName?.match(/name/i)) {
       const parsedNameParts = normalizeName(field.fieldValue);
-      parsedFields.name = field.fieldValue;
-      if (parsedNameParts[0] === expectedNameParts[0]) {
-        firstNameVerified = true;
-      }
-      if (parsedNameParts.at(-1) === expectedNameParts.at(-1)) {
-        lastNameVerified = true;
+      if (parsedNameParts.length >= 2) {
+        detectedNames.add(`${parsedNameParts[0]} ${parsedNameParts.at(-1)}`);
       }
     } else if (field?.fieldName?.match(/(social.*security)|(social.*number)|ssn/i) && !ssnVerified) {
       parsedFields.ssnLast4 = normalizeSSN(field.fieldValue);
@@ -93,10 +88,11 @@ export async function verify(documentObj: Document) {
       certificateVerified = certificateKeywords.size >= 2;
     }
   }
+  const nameVerified = detectedNames.has(`${expectedNameParts[0]} ${expectedNameParts.at(-1)}`);
+  parsedFields.names = Array.from(detectedNames);
   const status: DocumentStatus =
     birthdateVerified &&
-    firstNameVerified &&
-    lastNameVerified &&
+    nameVerified &&
     ssnVerified &&
     deathdateVerified &&
     certificateVerified &&
@@ -106,7 +102,7 @@ export async function verify(documentObj: Document) {
   let statusMessage = '';
   if (!idProofVerified || !certificateVerified) {
     statusMessage = 'Unable to verify certificate';
-  } else if (!firstNameVerified || !lastNameVerified) {
+  } else if (!nameVerified) {
     statusMessage = 'Name mismatch';
   } else if (!birthdateVerified) {
     statusMessage = 'Birthdate mismatch';
