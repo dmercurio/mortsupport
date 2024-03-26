@@ -53,7 +53,8 @@ export async function verify(documentObj: Document) {
       .replaceAll(/[^a-zA-Z\s]/g, '')
       .split(/\s+/)
       .map((part) => part.toLowerCase())
-      .filter((part) => !NAME_MODIFIERS.includes(part));
+      .filter((part) => !NAME_MODIFIERS.includes(part))
+      .filter((part) => part.length > 0);
   const normalizeSSN = (ssn: string) => ssn.replaceAll(/[^0-9]/g, '').slice(-4);
 
   let birthdateVerified = false;
